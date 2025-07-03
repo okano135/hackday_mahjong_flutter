@@ -1,7 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:mahjong_app/presentation/camera/widgets/imageBackgroundButton.dart';
+import 'package:mahjong_app/presentation/result/result_screen.dart';
 
-import '../camera/advanced_camera_screen.dart';
+import '../camera/widgets/imageBackgroundButton.dart';
+import '../result/result_model.dart';
+
+// 1. まずはAPIから受け取った生のJSONデータをMapに変換します
+// (実際にはhttpライブラリなどで取得したレスポンスボディをjsonDecodeする)
+final Map<String, dynamic> apiResponseJson = {
+  "success": true,
+  "result": {
+    "isAgari": true,
+    "yakuman": 0,
+    "yaku": {"平和": "1飜", "門前清自摸和": "1飜", "立直": "1飜", "ドラ": "1飜"},
+    "han": 4,
+    "fu": 20,
+    "ten": 5200,
+    "name": "",
+    "text": "(東場北家)自摸 20符4飜 5",
+    "oya": [2600, 2600, 2600],
+    "ko": [2600, 1300, 1300],
+  },
+  "error": false,
+};
+
+// 2. JSONをモデルオブジェクトに変換
+final mahjongResult = ApiResponse.fromJson(apiResponseJson).result;
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -52,10 +75,14 @@ class HomeScreen extends StatelessWidget {
               // assets/button_calc_inactive.pngを背景にしたボタン
               ImageBackgroundButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const AdvancedCameraScreen(),
-                    ),
+                  showDialog(
+                    context: context,
+                    // ダイアログの外側をタップしても閉じないようにする
+                    barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      // 作成したResultDialogウィジェットを呼び出す
+                      return ResultDialog(result: mahjongResult);
+                    },
                   );
                 },
                 text: "",

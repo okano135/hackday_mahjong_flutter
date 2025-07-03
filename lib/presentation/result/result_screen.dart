@@ -3,7 +3,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:mahjong_app/models/result_model.dart'; // 先ほど作成したモデルをインポート
+
+import 'result_model.dart'; // 先ほど作成したモデルをインポート
 
 class ResultDialog extends StatelessWidget {
   final MahjongResult result;
