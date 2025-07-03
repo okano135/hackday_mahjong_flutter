@@ -8,8 +8,7 @@ import 'package:ultralytics_yolo/yolo_streaming_config.dart';
 import 'package:ultralytics_yolo/yolo_task.dart';
 import 'package:ultralytics_yolo/yolo_view.dart';
 
-import 'widgets/dora_image_effect.dart'; // ドラのきらめきエフェクトを表示するWidget
-
+import 'dora_image_effect.dart'; // ドラのきらめきエフェクトを表示するWidget
 
 class AdvancedCameraScreen extends ConsumerStatefulWidget {
   const AdvancedCameraScreen({super.key}); // keyを追加するのが一般的です
@@ -37,33 +36,33 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
           return Stack(
             children: [
               YOLOView(
-                  modelPath: 'best_re',
-                  task: YOLOTask.detect,
-                  // Configure streaming behavior
-                  streamingConfig: YOLOStreamingConfig.throttled(
-                    maxFPS: 15, // Limit to 15 FPS for battery saving
-                    includeMasks: false, // Disable masks for performance
-                    includeOriginalImage: false, // Save bandwidth
-                  ),
-
-                  // Comprehensive callback
-                  onStreamingData: (data) {
-                    final detections = data['detections'] as List? ?? [];
-                    final fps = data['fps'] as double? ?? 0.0;
-                    final originalImage = data['originalImage'] as Uint8List?;
-
-                    // Notifier を通じて手牌の状態を更新
-                    ref.watch(handProvider.notifier).updateHand(detections);
-
-                    // Update detections for overlay
-                    setState(() {
-                      _currentDetections = detections;
-                    });
-
-                    // Process complete frame data
-                    processFrameData(detections, originalImage);
-                  },
+                modelPath: 'best_re',
+                task: YOLOTask.detect,
+                // Configure streaming behavior
+                streamingConfig: YOLOStreamingConfig.throttled(
+                  maxFPS: 15, // Limit to 15 FPS for battery saving
+                  includeMasks: false, // Disable masks for performance
+                  includeOriginalImage: false, // Save bandwidth
                 ),
+
+                // Comprehensive callback
+                onStreamingData: (data) {
+                  final detections = data['detections'] as List? ?? [];
+                  final fps = data['fps'] as double? ?? 0.0;
+                  final originalImage = data['originalImage'] as Uint8List?;
+
+                  // Notifier を通じて手牌の状態を更新
+                  ref.watch(handProvider.notifier).updateHand(detections);
+
+                  // Update detections for overlay
+                  setState(() {
+                    _currentDetections = detections;
+                  });
+
+                  // Process complete frame data
+                  processFrameData(detections, originalImage);
+                },
+              ),
               ..._buildDetectionOverlays(),
             ],
           );
@@ -97,7 +96,9 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
             top: top * _viewSize.height,
             width: (right - left) * _viewSize.width,
             height: (bottom - top) * _viewSize.height,
-            child: DoraEffect(width: (right - left) * _viewSize.width), // 後で実装するきらめきエフェクトのWidget
+            child: DoraEffect(
+              width: (right - left) * _viewSize.width,
+            ), // 後で実装するきらめきエフェクトのWidget
           ),
         );
       }

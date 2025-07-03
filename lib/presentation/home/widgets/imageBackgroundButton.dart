@@ -22,7 +22,7 @@ class ImageBackgroundButton extends StatelessWidget {
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage(imagePath),
-            fit: BoxFit.cover, // 画像の表示方法（cover: 全体を覆う, fill: 引き伸ばすなど）
+            // fit: BoxFit.cover, // 画像の表示方法（cover: 全体を覆う, fill: 引き伸ばすなど）
           ),
         ),
         child: Center(
