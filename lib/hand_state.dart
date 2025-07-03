@@ -12,11 +12,11 @@ class HandStateNotifier extends StateNotifier<List<String>> {
   List<String> _candidateHand = [];
 
   /// 候補が連続で検出されたフレーム数
-  int _consecutiveFrames = 0;
+  int _consecutiveFrames = 3;
 
   /// 状態を更新するために必要な連続検出フレーム数
   /// この値を大きくするとより安定しますが、反応は少し遅くなります。
-  static const int _requiredStableFrames = 3;
+  static const int _requiredStableFrames = 0;
 
   /// 検出の信頼度のしきい値
   static const double _confidenceThreshold = 0.7;
@@ -48,13 +48,15 @@ class HandStateNotifier extends StateNotifier<List<String>> {
       //    これにより、不要なUIの再描画を防ぐ
       if (!listEquals(state, _candidateHand)) {
         state = _candidateHand;
+        print(
+          'Hand updated: $state (from $_candidateHand after $_consecutiveFrames frames)',
+        );
       }
     }
   }
 }
 
 // StateNotifierProvider (変更なし)
-final handProvider =
-    StateNotifierProvider.autoDispose<HandStateNotifier, List<String>>(
-      (ref) => HandStateNotifier(),
-    );
+final handProvider = StateNotifierProvider<HandStateNotifier, List<String>>(
+  (ref) => HandStateNotifier(),
+);

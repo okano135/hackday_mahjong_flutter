@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mahjong_app/hand_state.dart';
 
 void showAgariHandDialog(BuildContext context, WidgetRef ref) {
-  final handState = ref.read(handProvider); // 推定手牌リストを取得
+  final handState = ref.watch(handProvider); // 推定手牌リストを取得
+  print('Current hand state: $handState');
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -11,7 +12,8 @@ void showAgariHandDialog(BuildContext context, WidgetRef ref) {
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
-    builder: (context) => AgariHandEditor(initialHand: List<String>.from(handState)),
+    builder: (context) =>
+        AgariHandEditor(initialHand: List<String>.from(handState)),
   );
 }
 
@@ -27,18 +29,48 @@ class _AgariHandEditorState extends State<AgariHandEditor> {
   late List<String> handTiles; // 下部：現在の手牌
   final Map<String, int> selectedCounts = {};
   final allTiles = [
-  // マンズ (萬子)
-  'Manzu1', 'Manzu2', 'Manzu3', 'Manzu4', 'Manzu5', 'Manzu6', 'Manzu7', 'Manzu8', 'Manzu9',
+    // マンズ (萬子)
+    'Manzu1',
+    'Manzu2',
+    'Manzu3',
+    'Manzu4',
+    'Manzu5',
+    'Manzu6',
+    'Manzu7',
+    'Manzu8',
+    'Manzu9',
 
-  // ピンズ (筒子)
-  'Pinzu1', 'Pinzu2', 'Pinzu3', 'Pinzu4', 'Pinzu5', 'Pinzu6', 'Pinzu7', 'Pinzu8', 'Pinzu9',
+    // ピンズ (筒子)
+    'Pinzu1',
+    'Pinzu2',
+    'Pinzu3',
+    'Pinzu4',
+    'Pinzu5',
+    'Pinzu6',
+    'Pinzu7',
+    'Pinzu8',
+    'Pinzu9',
 
-  // ソウズ (索子)
-  'Sowzu1', 'Sowzu2', 'Sowzu3', 'Sowzu4', 'Sowzu5', 'Sowzu6', 'Sowzu7', 'Sowzu8', 'Sowzu9',
+    // ソウズ (索子)
+    'Sowzu1',
+    'Sowzu2',
+    'Sowzu3',
+    'Sowzu4',
+    'Sowzu5',
+    'Sowzu6',
+    'Sowzu7',
+    'Sowzu8',
+    'Sowzu9',
 
-  // 字牌 (風牌・三元牌)
-  'Etc_East', 'Etc_South', 'Etc_West', 'Etc_North', 'Etc_White', 'Etc_Hatsu', 'Etc_Center',
-];
+    // 字牌 (風牌・三元牌)
+    'Etc_East',
+    'Etc_South',
+    'Etc_West',
+    'Etc_North',
+    'Etc_White',
+    'Etc_Hatsu',
+    'Etc_Center',
+  ];
 
   @override
   void initState() {
@@ -71,7 +103,9 @@ class _AgariHandEditorState extends State<AgariHandEditor> {
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 16, right: 16, top: 24,
+        left: 16,
+        right: 16,
+        top: 24,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -99,19 +133,31 @@ class _AgariHandEditorState extends State<AgariHandEditor> {
                           borderRadius: BorderRadius.circular(4),
                           color: Colors.white,
                         ),
-                        child: Image.asset('assets/pis/$tile.png', fit: BoxFit.contain),
+                        child: Image.asset(
+                          'assets/pis/$tile.png',
+                          fit: BoxFit.contain,
+                        ),
                       ),
                       if (count > 0)
                         Positioned(
                           right: 0,
                           top: 0,
                           child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.orange,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Text('$count', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            child: Text(
+                              '$count',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                     ],
@@ -125,19 +171,26 @@ class _AgariHandEditorState extends State<AgariHandEditor> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: handTiles.map((tile) => GestureDetector(
-              onTap: () => removeTile(tile),
-              child: Container(
-                width: 40,
-                height: 60,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blueAccent, width: 2),
-                  borderRadius: BorderRadius.circular(4),
-                  color: Colors.lightBlue[50],
-                ),
-                child: Image.asset('assets/pis/$tile.png', fit: BoxFit.contain),
-              ),
-            )).toList(),
+            children: handTiles
+                .map(
+                  (tile) => GestureDetector(
+                    onTap: () => removeTile(tile),
+                    child: Container(
+                      width: 40,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.blueAccent, width: 2),
+                        borderRadius: BorderRadius.circular(4),
+                        color: Colors.lightBlue[50],
+                      ),
+                      child: Image.asset(
+                        'assets/pis/$tile.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
           ),
           const SizedBox(height: 24),
           Row(
