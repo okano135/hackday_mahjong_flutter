@@ -1,33 +1,42 @@
 // lib/main.dart
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ultralytics_yolo/yolo_streaming_config.dart';
 import 'package:ultralytics_yolo/yolo_task.dart';
 import 'package:ultralytics_yolo/yolo_view.dart';
-import 'dart:typed_data';
 
-import 'widgets/dora_effetct.dart'; // ドラのきらめきエフェクトを表示するWidget
+import 'widgets/dora_effect.dart'; // ドラのきらめきエフェクトを表示するWidget
+import 'package:mahjong_app/hand_state.dart';
 
+class AdvancedCameraScreen extends ConsumerStatefulWidget {
+  const AdvancedCameraScreen({super.key}); // keyを追加するのが一般的です
 
-class AdvancedCameraScreen extends StatefulWidget {
   @override
-  State<AdvancedCameraScreen> createState() => _AdvancedCameraScreenState();
+  // ConsumerState を返すように変更します
+  ConsumerState<AdvancedCameraScreen> createState() =>
+      _AdvancedCameraScreenState();
 }
 
-class _AdvancedCameraScreenState extends State<AdvancedCameraScreen> {
+// State<AdvancedCameraScreen> の代わりに ConsumerState<AdvancedCameraScreen> を継承します
+class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
   List<dynamic> _currentDetections = [];
   Size _viewSize = Size.zero;
 
   @override
+  // build メソッドの引数は BuildContext のみになります。
+  // `ref` は ConsumerState のプロパティとして `this.ref` でアクセスできます。
   Widget build(BuildContext context) {
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
           _viewSize = Size(constraints.maxWidth, constraints.maxHeight);
-          
+
           return Stack(
             children: [
               YOLOView(
-                modelPath: 'best_re',
+                modelPath: 'best_re 3',
                 task: YOLOTask.detect,
                 // Configure streaming behavior
                 streamingConfig: YOLOStreamingConfig.throttled(
@@ -42,6 +51,9 @@ class _AdvancedCameraScreenState extends State<AdvancedCameraScreen> {
                   final fps = data['fps'] as double? ?? 0.0;
                   final originalImage = data['originalImage'] as Uint8List?;
 
+                  // Notifier を通じて手牌の状態を更新
+                  ref.read(handProvider.notifier).updateHand(detections);
+
                   // Update detections for overlay
                   setState(() {
                     _currentDetections = detections;
@@ -52,7 +64,6 @@ class _AdvancedCameraScreenState extends State<AdvancedCameraScreen> {
                 },
               ),
               ..._buildDetectionOverlays(),
-              
             ],
           );
         },
@@ -61,7 +72,6 @@ class _AdvancedCameraScreenState extends State<AdvancedCameraScreen> {
   }
 
   List<Widget> _buildDetectionOverlays() {
-    
     if (_currentDetections.isEmpty || _viewSize == Size.zero) {
       return [];
     }
@@ -89,7 +99,7 @@ class _AdvancedCameraScreenState extends State<AdvancedCameraScreen> {
             child: DoraEffect(), // 後で実装するきらめきエフェクトのWidget
           ),
         );
-      } 
+      }
     }
     return overlays;
   }
@@ -103,7 +113,7 @@ class _AdvancedCameraScreenState extends State<AdvancedCameraScreen> {
       // Debug: Print only Manzu4 detection structure
       if (className == 'Manzu4') {
         //print('🀄 Manzu4 Detection Full Structure: $detection');
-        
+
         // Check all possible box key names
         final possibleBoxKeys = ['box', 'boundingBox', 'rect', 'bounds'];
         for (final key in possibleBoxKeys) {

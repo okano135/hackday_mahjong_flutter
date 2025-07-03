@@ -2,14 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ultralytics_yolo/yolo_streaming_config.dart';
-import 'package:ultralytics_yolo/yolo_task.dart';
-import 'package:ultralytics_yolo/yolo_view.dart';
-
 
 import 'core/providers.dart';
 import 'core/theme.dart';
-import 'hand_state.dart'; // 作成した hand_state.dart をインポート
 import 'presentation/camera/advanced_camera_screen.dart'; // 変更: インポートパスを修正
 
 Future<void> main() async {
@@ -33,33 +28,6 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
       home: AdvancedCameraScreen(),
-    );
-  }
-}
-
-class AdvancedCameraScreen extends ConsumerWidget {
-  @override
-  // build メソッドに WidgetRef ref を追加
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          YOLOView(
-            modelPath: 'best_re 3',
-            task: YOLOTask.detect,
-            streamingConfig: YOLOStreamingConfig.throttled(
-              maxFPS: 15,
-              includeMasks: false,
-              includeOriginalImage: false,
-            ),
-            onStreamingData: (data) {
-              final detections = data['detections'] as List? ?? [];
-              // Notifier を通じて手牌の状態を更新
-              ref.read(handProvider.notifier).updateHand(detections);
-            },
-          ),
-        ],
-      ),
     );
   }
 }
