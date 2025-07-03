@@ -1,5 +1,6 @@
 // lib/main.dart
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,7 @@ import 'package:ultralytics_yolo/yolo_task.dart';
 import 'package:ultralytics_yolo/yolo_view.dart';
 
 import 'widgets/dora_image_effect.dart'; // ドラのきらめきエフェクトを表示するWidget
+import 'widgets/dora_selection.dart';
 
 
 class AdvancedCameraScreen extends ConsumerStatefulWidget {
@@ -65,6 +67,14 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
                   },
                 ),
               ..._buildDetectionOverlays(),
+              Positioned(
+                top: 16, // ステータスバーとの余白
+                left: 16, // 画面の左端からの余白
+                child: DoraSelection(
+                  label: 'ドラ入力',
+                  onTap: () => showDoraDialog(context),
+                ),
+              ),
             ],
           );
         },
@@ -124,5 +134,125 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
         }
       }
     }
+  }
+}
+
+class _DialogButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _DialogButton({required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      icon: Icon(icon),
+      label: Text(label),
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(120, 48),
+      ),
+      onPressed: onTap,
+    );
+  }
+}
+
+void showDoraDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => DoraDialog(),
+  );
+}
+
+class DoraDialog extends StatefulWidget {
+  @override
+  State<DoraDialog> createState() => _DoraDialogState();
+}
+
+class _DoraDialogState extends State<DoraDialog> {
+  final tiles = [
+  // マンズ (萬子)
+  'Manzu1', 'Manzu2', 'Manzu3', 'Manzu4', 'Manzu5', 'Manzu6', 'Manzu7', 'Manzu8', 'Manzu9',
+  
+  // ピンズ (筒子)
+  'Pinzu1', 'Pinzu2', 'Pinzu3', 'Pinzu4', 'Pinzu5', 'Pinzu6', 'Pinzu7', 'Pinzu8', 'Pinzu9',
+  
+  // ソウズ (索子)
+  'Sowzu1', 'Sowzu2', 'Sowzu3', 'Sowzu4', 'Sowzu5', 'Sowzu6', 'Sowzu7', 'Sowzu8', 'Sowzu9',
+  
+  // 字牌 (風牌・三元牌)
+  'Etc_East', 'Etc_South', 'Etc_West', 'Etc_North', 'Etc_White', 'Etc_Hatsu', 'Etc_Center',
+];
+
+  final selected = <String>{};
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: Colors.white.withOpacity(0.95),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: tiles.map((tile) {
+                final isSelected = selected.contains(tile);
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (isSelected) {
+                        selected.remove(tile);
+                      } else if (selected.length < 5) {
+                        selected.add(tile);
+                      }
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.black12),
+                      color: isSelected ? Colors.yellowAccent : Colors.white,
+                      boxShadow: [
+                        if (isSelected)
+                          BoxShadow(color: Colors.yellow, blurRadius: 4),
+                      ],
+                    ),
+                    width: 40,
+                    height: 60,
+                    child: Image.asset(
+                      'assets/pis/$tile.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pinkAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+                onPressed: () {
+                  // TODO: 選択結果を保存する処理
+                  Navigator.of(context).pop(selected.toList());
+                },
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  child: Text('🌸 完了 🌸', style: TextStyle(fontSize: 18)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
