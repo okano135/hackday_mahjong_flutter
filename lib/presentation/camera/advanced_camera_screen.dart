@@ -3,12 +3,13 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mahjong_app/hand_state.dart';
 import 'package:ultralytics_yolo/yolo_streaming_config.dart';
 import 'package:ultralytics_yolo/yolo_task.dart';
 import 'package:ultralytics_yolo/yolo_view.dart';
 
 import 'widgets/dora_image_effect.dart'; // ドラのきらめきエフェクトを表示するWidget
-import 'package:mahjong_app/hand_state.dart';
+
 
 class AdvancedCameraScreen extends ConsumerStatefulWidget {
   const AdvancedCameraScreen({super.key}); // keyを追加するのが一般的です
@@ -52,7 +53,7 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
                   final originalImage = data['originalImage'] as Uint8List?;
 
                   // Notifier を通じて手牌の状態を更新
-                  ref.read(handProvider.notifier).updateHand(detections);
+                  ref.watch(handProvider.notifier).updateHand(detections);
 
                   // Update detections for overlay
                   setState(() {
