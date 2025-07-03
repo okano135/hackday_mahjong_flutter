@@ -36,3 +36,30 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+class AdvancedCameraScreen extends ConsumerWidget {
+  @override
+  // build メソッドに WidgetRef ref を追加
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          YOLOView(
+            modelPath: 'best_re 3',
+            task: YOLOTask.detect,
+            streamingConfig: YOLOStreamingConfig.throttled(
+              maxFPS: 15,
+              includeMasks: false,
+              includeOriginalImage: false,
+            ),
+            onStreamingData: (data) {
+              final detections = data['detections'] as List? ?? [];
+              // Notifier を通じて手牌の状態を更新
+              ref.read(handProvider.notifier).updateHand(detections);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
