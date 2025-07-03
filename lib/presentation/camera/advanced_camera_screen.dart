@@ -67,7 +67,7 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
               ..._buildDetectionOverlays(),
               Positioned(
                 left: 24,
-                bottom: 100,
+                bottom: 24,
                 child: GestureDetector(
                   onTap: () {
                     showAgariHandDialog(context, ref);
