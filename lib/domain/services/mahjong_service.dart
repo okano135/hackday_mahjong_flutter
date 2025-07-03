@@ -2,6 +2,7 @@
 import '../../data/models/recommendation_response_model.dart';
 import '../../data/models/score_calculation_response_model.dart';
 import '../../data/repositories/mahjong_api_repository.dart';
+import '../../utils/mahjong_tile_converter.dart';
 
 /// 麻雀ビジネスロジックサービス
 class MahjongService {
@@ -12,12 +13,17 @@ class MahjongService {
 
   /// 推奨牌を取得 (牌文字列で) - 例: "112233456788m112s"
   Future<RecommendationResponseModel> getRecommendationFromString({
-    required String tilesString,
+    required List<dynamic> tiles,
   }) async {
     // ビジネスロジック追加可能 (例: バリデーション、キャッシュなど)
-    if (tilesString.isEmpty) {
+
+    if (tiles.isEmpty) {
       throw ArgumentError('牌文字列が空です。');
     }
+    // 牌リストを文字列形式に変換
+    final tilesString = MahjongTileConverter.convertDetectedTilesToApiString(
+      tiles,
+    );
 
     // 簡単なバリデーション (麻雀牌文字列形式)
     if (!_isValidTilesString(tilesString)) {
@@ -31,15 +37,20 @@ class MahjongService {
 
   /// 点数計算 (牌文字列で) - 例: "112233456789m11s"
   Future<ScoreCalculationResponseModel> calculateScoreFromString({
-    required String tilesString,
+    required List<dynamic> tiles,
     String? extra,
     List<String>? dora,
     String? wind,
   }) async {
     // ビジネスロジック追加可能 (例: バリデーション、キャッシュなど)
-    if (tilesString.isEmpty) {
+
+    if (tiles.isEmpty) {
       throw ArgumentError('牌文字列が空です。');
     }
+    // 牌リストを文字列形式に変換
+    final tilesString = MahjongTileConverter.convertDetectedTilesToApiString(
+      tiles,
+    );
 
     // 簡単なバリデーション (麻雀牌文字列形式)
     if (!_isValidTilesString(tilesString)) {

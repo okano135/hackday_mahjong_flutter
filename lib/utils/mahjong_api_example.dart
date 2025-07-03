@@ -1,5 +1,6 @@
 // lib/utils/mahjong_api_example.dart
 import '../domain/services/mahjong_service.dart';
+import '../data/models/detection_result.dart';
 
 /// 麻雀API使用例を示すユーティリティクラス
 class MahjongApiExample {
@@ -11,10 +12,9 @@ class MahjongApiExample {
   Future<void> getRecommendationExample() async {
     try {
       // 例: "11223345678m112s" (萬子牌 + 索子牌)
-      const tilesString = "11223345678m112s";
 
       final response = await _mahjongService.getRecommendationFromString(
-        tilesString: tilesString,
+        tiles: DetectionResult.createRecommendSampleResults(),
       );
 
       print('推奨牌結果:');
@@ -29,11 +29,10 @@ class MahjongApiExample {
   /// 文字列形式で点数計算例
   Future<void> calculateScoreExample() async {
     try {
-      // 例: "23m456678p345s33z1m" (複雑なオプション付き)
-      const tilesString = "23m456678p345s33z1m";
+      // 例: "23m456678p345s33z1m"
 
       final response = await _mahjongService.calculateScoreFromString(
-        tilesString: tilesString,
+        tiles: DetectionResult.createRecommendSampleResults(),
         extra: "r", // リーチ
         dora: ["2m", "7s"], // ドラ牌
         wind: "14", // 風情報
