@@ -2,7 +2,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../models/mahjong_tile_model.dart';
 import '../models/recommendation_response_model.dart';
 import '../models/score_calculation_response_model.dart';
 
@@ -14,39 +13,6 @@ class MahjongApiClient {
 
   MahjongApiClient({http.Client? httpClient})
     : _httpClient = httpClient ?? http.Client();
-
-  /// 推奨牌API呼び出し (牌リストで)
-  Future<RecommendationResponseModel> getRecommendation({
-    required List<MahjongTileModel> tiles,
-  }) async {
-    try {
-      final url = Uri.parse('$_baseUrl/recommendation');
-
-      final response = await _httpClient.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode({
-          'tiles': tiles.map((tile) => tile.toJson()).toList(),
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return RecommendationResponseModel.fromJson(data);
-      } else {
-        throw MahjongApiException(
-          'Failed to get recommendation: ${response.statusCode}',
-          response.statusCode,
-        );
-      }
-    } catch (e) {
-      if (e is MahjongApiException) rethrow;
-      throw MahjongApiException('Network error: $e');
-    }
-  }
 
   /// 推奨牌API呼び出し (牌文字列で) - 例: "112233456788m112s"
   Future<RecommendationResponseModel> getRecommendationFromString({
@@ -79,45 +45,23 @@ class MahjongApiClient {
     }
   }
 
-  /// 点数計算API呼び出し (牌リストで)
-  Future<ScoreCalculationResponseModel> calculateScore({
-    required List<MahjongTileModel> tiles,
-  }) async {
-    try {
-      final url = Uri.parse('$_baseUrl/score-calculation');
-
-      final response = await _httpClient.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode({
-          'tiles': tiles.map((tile) => tile.toJson()).toList(),
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return ScoreCalculationResponseModel.fromJson(data);
-      } else {
-        throw MahjongApiException(
-          'Failed to calculate score: ${response.statusCode}',
-          response.statusCode,
-        );
-      }
-    } catch (e) {
-      if (e is MahjongApiException) rethrow;
-      throw MahjongApiException('Network error: $e');
-    }
-  }
-
   /// 点数計算API呼び出し (牌文字列で) - 例: "112233456789m11s"
   Future<ScoreCalculationResponseModel> calculateScoreFromString({
     required String tilesString,
+    String? extra,
+    List<String>? dora,
+    String? wind,
   }) async {
     try {
       final url = Uri.parse('$_baseUrl/score-calculation');
+
+      // リクエストボディ構築
+      final Map<String, dynamic> requestBody = {'hand': tilesString};
+
+      // オプション追加
+      if (extra != null) requestBody['extra'] = extra;
+      if (dora != null && dora.isNotEmpty) requestBody['dora'] = dora;
+      if (wind != null) requestBody['wind'] = wind;
 
       final response = await _httpClient.post(
         url,
@@ -125,7 +69,7 @@ class MahjongApiClient {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: jsonEncode({'hand': tilesString}),
+        body: jsonEncode(requestBody),
       );
 
       if (response.statusCode == 200) {

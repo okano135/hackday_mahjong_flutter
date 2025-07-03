@@ -1,98 +1,43 @@
 // lib/utils/mahjong_tile_converter.dart
-import '../data/models/mahjong_models.dart';
-import '../data/models/mahjong_tile_model.dart';
 
-/// 既存のPaiモデルとAPI用MahjongTileModel間の変換ユーティリティ
+/// 検出された牌情報をAPI用文字列に変換するユーティリティ
 class MahjongTileConverter {
-  /// PaiをMahjongTileModelに変換
-  static MahjongTileModel paiToTileModel(Pai pai) {
-    return MahjongTileModel(
-      id: pai.id,
-      displayName: pai.displayName,
-      isDora: pai.isDora,
-      isCandidate: pai.isCandidate,
-    );
-  }
+  /// 検出された牌情報から className を抽出して API 用文字列に変換
+  /// 例: [{"className": "Manzu5"}, {"className": "Manzu6"}] -> "56m"
+  static String convertDetectedTilesToApiString(List<dynamic> detectedTiles) {
+    if (detectedTiles.isEmpty) {
+      return '';
+    }
 
-  /// MahjongTileModelをPaiに変換
-  static Pai tileModelToPai(MahjongTileModel tileModel) {
-    return Pai(
-      id: tileModel.id,
-      displayName: tileModel.displayName,
-      isDora: tileModel.isDora,
-      isCandidate: tileModel.isCandidate,
-    );
-  }
-
-  /// PaiリストをMahjongTileModelリストに変換
-  static List<MahjongTileModel> paiListToTileModelList(List<Pai> paiList) {
-    return paiList.map((pai) => paiToTileModel(pai)).toList();
-  }
-
-  /// MahjongTileModelリストをPaiリストに変換
-  static List<Pai> tileModelListToPaiList(
-    List<MahjongTileModel> tileModelList,
-  ) {
-    return tileModelList.map((tileModel) => tileModelToPai(tileModel)).toList();
-  }
-
-  /// MahjongGameStateから手牌をMahjongTileModelリストとして抽出
-  static List<MahjongTileModel> extractTilesFromGameState(
-    MahjongGameState gameState,
-  ) {
-    return gameState.hand
-        .map((locatedPai) => paiToTileModel(locatedPai.pai))
+    // className を抽出
+    final List<String> classNames = detectedTiles
+        .map((tile) => tile['className'] as String?)
+        .where((className) => className != null)
+        .cast<String>()
         .toList();
+
+    return convertClassNamesToApiString(classNames);
   }
 
-  /// 牌文字列をパースしてMahjongTileModelリストに変換
-  /// 例: "112233456789m11s" -> List<MahjongTileModel>
-  static List<MahjongTileModel> parseStringToTileModelList(String tilesString) {
-    final List<MahjongTileModel> tiles = [];
-
-    if (tilesString.isEmpty) {
-      return tiles;
-    }
-
-    final regex = RegExp(r'([1-9]+)([mpsz])');
-    final matches = regex.allMatches(tilesString);
-
-    for (final match in matches) {
-      final numbers = match.group(1)!;
-      final suit = match.group(2)!;
-
-      for (int i = 0; i < numbers.length; i++) {
-        final number = numbers[i];
-        final id = _buildTileId(number, suit);
-        final displayName = _buildDisplayName(number, suit);
-
-        tiles.add(MahjongTileModel(id: id, displayName: displayName));
-      }
-    }
-
-    return tiles;
-  }
-
-  /// MahjongTileModelリストを牌文字列に変換
-  /// 例: List<MahjongTileModel> -> "112233456789m11s"
-  static String tileModelListToString(List<MahjongTileModel> tiles) {
-    if (tiles.isEmpty) {
+  /// className リストを API 用文字列に変換
+  /// 例: ["Manzu5", "Manzu6", "Pinzu1", "Pinzu2"] -> "56m12p"
+  static String convertClassNamesToApiString(List<String> classNames) {
+    if (classNames.isEmpty) {
       return '';
     }
 
     final Map<String, List<String>> suitGroups = {
-      'm': [], // 萬子
-      'p': [], // 筒子
-      's': [], // 索子
-      'z': [], // 字牌
+      'm': [], // 萬子 (Manzu)
+      'p': [], // 筒子 (Pinzu)
+      's': [], // 索子 (Souzu)
+      'z': [], // 字牌 (Jihai)
     };
 
-    // 牌を種類別にグループ化
-    for (final tile in tiles) {
-      final suit = _extractSuitFromId(tile.id);
-      final number = _extractNumberFromId(tile.id);
-      if (suit != null && number != null) {
-        suitGroups[suit]?.add(number);
+    // className をパースして種類別にグループ化
+    for (final className in classNames) {
+      final parsedTile = _parseClassName(className);
+      if (parsedTile != null) {
+        suitGroups[parsedTile['suit']]?.add(parsedTile['number']!);
       }
     }
 
@@ -110,108 +55,68 @@ class MahjongTileConverter {
     return result.toString();
   }
 
-  /// 牌ID生成 (例: "1", "m" -> "man1")
-  static String _buildTileId(String number, String suit) {
-    switch (suit) {
-      case 'm':
-        return 'man$number';
-      case 'p':
-        return 'pin$number';
-      case 's':
-        return 'sou$number';
-      case 'z':
-        switch (number) {
-          case '1':
-            return 'ton'; // 東
-          case '2':
-            return 'nan'; // 南
-          case '3':
-            return 'sha'; // 西
-          case '4':
-            return 'pei'; // 北
-          case '5':
-            return 'haku'; // 白
-          case '6':
-            return 'hatsu'; // 發
-          case '7':
-            return 'chun'; // 中
-          default:
-            return 'z$number';
-        }
-      default:
-        return '${suit}$number';
+  /// className をパースして種類と数字を抽出
+  /// 例: "Manzu5" -> {"suit": "m", "number": "5"}
+  static Map<String, String>? _parseClassName(String className) {
+    // 萬子 (Manzu1~9)
+    if (className.startsWith('Manzu')) {
+      final numberStr = className.substring(5); // "Manzu".length = 5
+      if (numberStr.isNotEmpty && _isValidNumber(numberStr)) {
+        return {'suit': 'm', 'number': numberStr};
+      }
     }
-  }
 
-  /// 表示名生成 (例: "1", "m" -> "一萬")
-  static String _buildDisplayName(String number, String suit) {
-    final numberNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
-    final numberIndex = int.parse(number) - 1;
-
-    switch (suit) {
-      case 'm':
-        return '${numberNames[numberIndex]}萬';
-      case 'p':
-        return '${numberNames[numberIndex]}筒';
-      case 's':
-        return '${numberNames[numberIndex]}索';
-      case 'z':
-        switch (number) {
-          case '1':
-            return '東';
-          case '2':
-            return '南';
-          case '3':
-            return '西';
-          case '4':
-            return '北';
-          case '5':
-            return '白';
-          case '6':
-            return '發';
-          case '7':
-            return '中';
-          default:
-            return number;
-        }
-      default:
-        return number;
+    // 筒子 (Pinzu1~9)
+    if (className.startsWith('Pinzu')) {
+      final numberStr = className.substring(5); // "Pinzu".length = 5
+      if (numberStr.isNotEmpty && _isValidNumber(numberStr)) {
+        return {'suit': 'p', 'number': numberStr};
+      }
     }
-  }
 
-  /// 牌IDから種類を抽出 (例: "man1" -> "m")
-  static String? _extractSuitFromId(String id) {
-    if (id.startsWith('man')) return 'm';
-    if (id.startsWith('pin')) return 'p';
-    if (id.startsWith('sou')) return 's';
-    if (['ton', 'nan', 'sha', 'pei', 'haku', 'hatsu', 'chun'].contains(id)) {
-      return 'z';
+    // 索子 (Souzu1~9)
+    if (className.startsWith('Souzu')) {
+      final numberStr = className.substring(5); // "Souzu".length = 5
+      if (numberStr.isNotEmpty && _isValidNumber(numberStr)) {
+        return {'suit': 's', 'number': numberStr};
+      }
     }
+
+    // 字牌 処理
+    final jihai = _parseJihaiClassName(className);
+    if (jihai != null) {
+      return {'suit': 'z', 'number': jihai};
+    }
+
     return null;
   }
 
-  /// 牌IDから数字を抽出 (例: "man1" -> "1")
-  static String? _extractNumberFromId(String id) {
-    if (id.startsWith('man') || id.startsWith('pin') || id.startsWith('sou')) {
-      return id.substring(3);
-    }
-    switch (id) {
-      case 'ton':
+  /// 字牌 className をパース
+  /// 例: "Ton" -> "1", "Haku" -> "5"
+  static String? _parseJihaiClassName(String className) {
+    switch (className) {
+      case 'Ton': // 東
         return '1';
-      case 'nan':
+      case 'Nan': // 南
         return '2';
-      case 'sha':
+      case 'Sha': // 西
         return '3';
-      case 'pei':
+      case 'Pei': // 北
         return '4';
-      case 'haku':
+      case 'Haku': // 白
         return '5';
-      case 'hatsu':
+      case 'Hatsu': // 發
         return '6';
-      case 'chun':
+      case 'Chun': // 中
         return '7';
       default:
         return null;
     }
+  }
+
+  /// 有効な数字かチェック
+  static bool _isValidNumber(String numberStr) {
+    final number = int.tryParse(numberStr);
+    return number != null && number >= 1 && number <= 9;
   }
 }

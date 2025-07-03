@@ -10,7 +10,6 @@ lib/
 │   ├── datasources/
 │   │   └── mahjong_api_client.dart       # APIクライアント (HTTP通信)
 │   ├── models/
-│   │   ├── mahjong_tile_model.dart       # 麻雀牌モデル
 │   │   ├── recommendation_response_model.dart  # 推奨牌応答モデル
 │   │   └── score_calculation_response_model.dart  # 点数計算応答モデル
 │   └── repositories/
@@ -35,6 +34,7 @@ lib/
 
 - 現在の牌情報を渡すと点数と可能な役を計算して返します。
 - 文字列形式(`"112233456789m11s"`)またはリスト形式対応
+- オプション: `extra` (追加状態), `dora` (ドラ牌), `wind` (風情報) サポート
 
 ## 使用方法
 
@@ -55,6 +55,14 @@ class MahjongScreen extends ConsumerWidget {
           // 文字列形式で推奨牌を取得
           final response = await mahjongService.getRecommendationFromString(
             tilesString: "112233456789m11s",
+          );
+
+          // オプション付き推奨牌を取得
+          final responseWithOptions = await mahjongService.getRecommendationFromString(
+            tilesString: "112233456789m11s",
+            extra: "r", // リーチ状態
+            dora: ["2m", "5s"], // ドラ牌
+            wind: "14", // 風情報
           );
 
           // 結果処理
@@ -86,14 +94,30 @@ void main() async {
   final service = MahjongService(repository: repository);
 
   try {
-    // 推奨牌取得
+    // 推奨牌取得 (基本)
     final recommendation = await service.getRecommendationFromString(
       tilesString: "112233456789m11s",
     );
 
-    // 点数計算
+    // 推奨牌取得 (オプション付き)
+    final recommendationWithOptions = await service.getRecommendationFromString(
+      tilesString: "112233456789m11s",
+      extra: "r", // リーチ状態
+      dora: ["3m", "7s"], // ドラ牌
+      wind: "14", // 風情報
+    );
+
+    // 点数計算 (基本)
     final scoreResult = await service.calculateScoreFromString(
       tilesString: "112233456789m11s",
+    );
+
+    // 点数計算 (オプション付き)
+    final scoreWithOptions = await service.calculateScoreFromString(
+      tilesString: "112233456789m11s",
+      extra: "r", // リーチ状態
+      dora: ["2m", "5s"], // ドラ牌
+      wind: "14", // 風情報
     );
 
     print('推奨牌: ${recommendation.recommend}');
@@ -122,6 +146,31 @@ void main() async {
 - `"112233456789m"`: 萬子牌 1,1,2,2,3,3,4,5,6,7,8,9
 - `"112233456789m11s"`: 萬子牌 + 索子牌 1,1
 - `"123m456p789s1122z"`: 萬子 123 + 筒子 456 + 索子 789 + 東東 + 南南
+
+## API リクエスト/レスポンス 形式
+
+### 推奨牌 API リクエスト
+
+**基本リクエスト:**
+
+```json
+{
+  "hand": "112233456789m11s"
+}
+```
+
+### 点数計算 API リクエスト
+
+**基本リクエスト:**
+
+```json
+{
+  "hand": "23m456678p345s33z1m",
+  "extra": "r",
+  "dora": ["2m", "7s"],
+  "wind": "14"
+}
+```
 
 ## API 応答形式
 

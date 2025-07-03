@@ -1,6 +1,5 @@
 // lib/utils/mahjong_api_example.dart
 import '../domain/services/mahjong_service.dart';
-import '../data/models/mahjong_tile_model.dart';
 
 /// 麻雀API使用例を示すユーティリティクラス
 class MahjongApiExample {
@@ -30,11 +29,14 @@ class MahjongApiExample {
   /// 文字列形式で点数計算例
   Future<void> calculateScoreExample() async {
     try {
-      // 例: "112233456789m11s" (14枚 - 完成状態)
-      const tilesString = "112233456789m11s";
+      // 例: "23m456678p345s33z1m" (複雑なオプション付き)
+      const tilesString = "23m456678p345s33z1m";
 
       final response = await _mahjongService.calculateScoreFromString(
         tilesString: tilesString,
+        extra: "r", // リーチ
+        dora: ["2m", "7s"], // ドラ牌
+        wind: "14", // 風情報
       );
 
       print('点数計算結果:');
@@ -73,38 +75,10 @@ class MahjongApiExample {
       print('入力情報:');
       print('  元の牌: ${response.input.originalHand}');
       print('  処理された牌: ${response.input.processedHand}');
+      print('  ドラ: ${response.input.options.dora}');
+      print('  風: ${response.input.options.wind ?? "なし"}');
     } catch (e) {
       print('点数計算失敗: $e');
-    }
-  }
-
-  /// リスト形式でAPI呼び出し例
-  Future<void> getRecommendationWithTileListExample() async {
-    try {
-      // MahjongTileModelリストに変換
-      final tiles = [
-        const MahjongTileModel(id: 'man1', displayName: '一萬'),
-        const MahjongTileModel(id: 'man1', displayName: '一萬'),
-        const MahjongTileModel(id: 'man2', displayName: '二萬'),
-        const MahjongTileModel(id: 'man2', displayName: '二萬'),
-        const MahjongTileModel(id: 'man3', displayName: '三萬'),
-        const MahjongTileModel(id: 'man3', displayName: '三萬'),
-        const MahjongTileModel(id: 'man4', displayName: '四萬'),
-        const MahjongTileModel(id: 'man5', displayName: '五萬'),
-        const MahjongTileModel(id: 'man6', displayName: '六萬'),
-        const MahjongTileModel(id: 'man7', displayName: '七萬'),
-        const MahjongTileModel(id: 'man8', displayName: '八萬'),
-        const MahjongTileModel(id: 'man8', displayName: '八萬'),
-        const MahjongTileModel(id: 'sou1', displayName: '一索'),
-      ];
-
-      final response = await _mahjongService.getRecommendation(tiles: tiles);
-
-      print('リスト形式推奨牌結果:');
-      print('推奨牌: ${response.recommend}');
-      print('推奨牌表示名: ${response.recommendedTileDisplayName}');
-    } catch (e) {
-      print('リスト形式推奨牌取得失敗: $e');
     }
   }
 
@@ -118,10 +92,6 @@ class MahjongApiExample {
 
     print('2. 文字列形式で点数計算:');
     await calculateScoreExample();
-    print('\n');
-
-    print('3. リスト形式で推奨牌取得:');
-    await getRecommendationWithTileListExample();
     print('\n');
 
     print('=== 例完了 ===');
