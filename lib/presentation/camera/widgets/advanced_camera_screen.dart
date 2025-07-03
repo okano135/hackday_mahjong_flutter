@@ -9,9 +9,8 @@ import 'package:ultralytics_yolo/yolo_streaming_config.dart';
 import 'package:ultralytics_yolo/yolo_task.dart';
 import 'package:ultralytics_yolo/yolo_view.dart';
 
-import 'widgets/dora_image_effect.dart'; // ドラのきらめきエフェクトを表示するWidget
-import 'widgets/dora_selection.dart';
-
+import 'dora_image_effect.dart'; // ドラのきらめきエフェクトを表示するWidget
+import 'dora_selection.dart'; // ドラ選択ダイアログを表示するWidget
 
 class AdvancedCameraScreen extends ConsumerStatefulWidget {
   const AdvancedCameraScreen({super.key}); // keyを追加するのが一般的です
@@ -39,33 +38,33 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
           return Stack(
             children: [
               YOLOView(
-                  modelPath: 'best_re',
-                  task: YOLOTask.detect,
-                  // Configure streaming behavior
-                  streamingConfig: YOLOStreamingConfig.throttled(
-                    maxFPS: 15, // Limit to 15 FPS for battery saving
-                    includeMasks: false, // Disable masks for performance
-                    includeOriginalImage: false, // Save bandwidth
-                  ),
-
-                  // Comprehensive callback
-                  onStreamingData: (data) {
-                    final detections = data['detections'] as List? ?? [];
-                    final fps = data['fps'] as double? ?? 0.0;
-                    final originalImage = data['originalImage'] as Uint8List?;
-
-                    // Notifier を通じて手牌の状態を更新
-                    ref.watch(handProvider.notifier).updateHand(detections);
-
-                    // Update detections for overlay
-                    setState(() {
-                      _currentDetections = detections;
-                    });
-
-                    // Process complete frame data
-                    processFrameData(detections, originalImage);
-                  },
+                modelPath: 'best_re',
+                task: YOLOTask.detect,
+                // Configure streaming behavior
+                streamingConfig: YOLOStreamingConfig.throttled(
+                  maxFPS: 15, // Limit to 15 FPS for battery saving
+                  includeMasks: false, // Disable masks for performance
+                  includeOriginalImage: false, // Save bandwidth
                 ),
+
+                // Comprehensive callback
+                onStreamingData: (data) {
+                  final detections = data['detections'] as List? ?? [];
+                  final fps = data['fps'] as double? ?? 0.0;
+                  final originalImage = data['originalImage'] as Uint8List?;
+
+                  // Notifier を通じて手牌の状態を更新
+                  ref.watch(handProvider.notifier).updateHand(detections);
+
+                  // Update detections for overlay
+                  setState(() {
+                    _currentDetections = detections;
+                  });
+
+                  // Process complete frame data
+                  processFrameData(detections, originalImage);
+                },
+              ),
               ..._buildDetectionOverlays(),
               Positioned(
                 top: 16, // ステータスバーとの余白
@@ -107,7 +106,9 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
             top: top * _viewSize.height,
             width: (right - left) * _viewSize.width,
             height: (bottom - top) * _viewSize.height,
-            child: DoraEffect(width: (right - left) * _viewSize.width), // 後で実装するきらめきエフェクトのWidget
+            child: DoraEffect(
+              width: (right - left) * _viewSize.width,
+            ), // 後で実装するきらめきエフェクトのWidget
           ),
         );
       }
@@ -141,26 +142,25 @@ class _DialogButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  const _DialogButton({required this.icon, required this.label, required this.onTap});
+  const _DialogButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       icon: Icon(icon),
       label: Text(label),
-      style: ElevatedButton.styleFrom(
-        minimumSize: const Size(120, 48),
-      ),
+      style: ElevatedButton.styleFrom(minimumSize: const Size(120, 48)),
       onPressed: onTap,
     );
   }
 }
 
 void showDoraDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (context) => DoraDialog(),
-  );
+  showDialog(context: context, builder: (context) => DoraDialog());
 }
 
 class DoraDialog extends StatefulWidget {
@@ -170,18 +170,48 @@ class DoraDialog extends StatefulWidget {
 
 class _DoraDialogState extends State<DoraDialog> {
   final tiles = [
-  // マンズ (萬子)
-  'Manzu1', 'Manzu2', 'Manzu3', 'Manzu4', 'Manzu5', 'Manzu6', 'Manzu7', 'Manzu8', 'Manzu9',
-  
-  // ピンズ (筒子)
-  'Pinzu1', 'Pinzu2', 'Pinzu3', 'Pinzu4', 'Pinzu5', 'Pinzu6', 'Pinzu7', 'Pinzu8', 'Pinzu9',
-  
-  // ソウズ (索子)
-  'Sowzu1', 'Sowzu2', 'Sowzu3', 'Sowzu4', 'Sowzu5', 'Sowzu6', 'Sowzu7', 'Sowzu8', 'Sowzu9',
-  
-  // 字牌 (風牌・三元牌)
-  'Etc_East', 'Etc_South', 'Etc_West', 'Etc_North', 'Etc_White', 'Etc_Hatsu', 'Etc_Center',
-];
+    // マンズ (萬子)
+    'Manzu1',
+    'Manzu2',
+    'Manzu3',
+    'Manzu4',
+    'Manzu5',
+    'Manzu6',
+    'Manzu7',
+    'Manzu8',
+    'Manzu9',
+
+    // ピンズ (筒子)
+    'Pinzu1',
+    'Pinzu2',
+    'Pinzu3',
+    'Pinzu4',
+    'Pinzu5',
+    'Pinzu6',
+    'Pinzu7',
+    'Pinzu8',
+    'Pinzu9',
+
+    // ソウズ (索子)
+    'Sowzu1',
+    'Sowzu2',
+    'Sowzu3',
+    'Sowzu4',
+    'Sowzu5',
+    'Sowzu6',
+    'Sowzu7',
+    'Sowzu8',
+    'Sowzu9',
+
+    // 字牌 (風牌・三元牌)
+    'Etc_East',
+    'Etc_South',
+    'Etc_West',
+    'Etc_North',
+    'Etc_White',
+    'Etc_Hatsu',
+    'Etc_Center',
+  ];
 
   final selected = <String>{};
 

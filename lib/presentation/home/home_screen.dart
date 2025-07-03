@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mahjong_app/presentation/camera/widgets/imageBackgroundButton.dart';
+import 'package:mahjong_app/presentation/home/widgets/imageBackgroundButton.dart';
 
-import '../camera/advanced_camera_screen.dart';
+import '../agari/scoreCalculatorDialog.dart';
+import '../camera/widgets/advanced_camera_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -32,7 +33,6 @@ class HomeScreen extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 8), // テキストの間にスペースを追加
                       const Text(
                         'Helpyon',
                         style: TextStyle(
@@ -49,6 +49,8 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
 
+              const SizedBox(height: 32),
+
               // assets/button_calc_inactive.pngを背景にしたボタン
               ImageBackgroundButton(
                 onPressed: () {
@@ -59,8 +61,23 @@ class HomeScreen extends StatelessWidget {
                   );
                 },
                 text: "",
-                // TODO: 後で直す
-                imagePath: "assets/button_calc.png",
+                imagePath: "assets/button_start.png",
+              ),
+
+              // TODO 開発のためにここにボタンを配置している．適切な遷移に修正
+              ImageBackgroundButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    // 背景色を透明にして、自前のBackdropFilterを有効にする
+                    barrierColor: Colors.black.withOpacity(0.3),
+                    builder: (context) {
+                      return const ScoreCalculatorDialog();
+                    },
+                  );
+                },
+                text: "点数計算",
+                imagePath: "assets/button_agari.png",
               ),
               // const SizedBox(height: 32),
               // ElevatedButton.icon(
@@ -99,6 +116,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
+      backgroundColor: Colors.white,
     );
   }
 }
