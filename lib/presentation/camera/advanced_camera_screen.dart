@@ -7,7 +7,7 @@ import 'package:ultralytics_yolo/yolo_streaming_config.dart';
 import 'package:ultralytics_yolo/yolo_task.dart';
 import 'package:ultralytics_yolo/yolo_view.dart';
 
-import 'widgets/dora_effect.dart'; // ドラのきらめきエフェクトを表示するWidget
+import 'widgets/dora_image_effect.dart'; // ドラのきらめきエフェクトを表示するWidget
 import 'package:mahjong_app/hand_state.dart';
 
 class AdvancedCameraScreen extends ConsumerStatefulWidget {
@@ -36,7 +36,7 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
           return Stack(
             children: [
               YOLOView(
-                modelPath: 'best_re 3',
+                modelPath: 'best_re',
                 task: YOLOTask.detect,
                 // Configure streaming behavior
                 streamingConfig: YOLOStreamingConfig.throttled(
@@ -96,7 +96,7 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
             top: top * _viewSize.height,
             width: (right - left) * _viewSize.width,
             height: (bottom - top) * _viewSize.height,
-            child: DoraEffect(), // 後で実装するきらめきエフェクトのWidget
+            child: DoraEffect(width: (right - left) * _viewSize.width), // 後で実装するきらめきエフェクトのWidget
           ),
         );
       }
