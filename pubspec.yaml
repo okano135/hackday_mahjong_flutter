@@ -31,3 +31,10 @@ flutter:
     - assets/pis/
     - assets/
 
+  fonts:
+    - family: LINESeed
+      fonts:
+        - asset: assets/fonts/LINESeedJP_A_TTF_Bd.ttf
+        - asset: assets/fonts/LINESeedJP_A_TTF_Eb.ttf
+        - asset: assets/fonts/LINESeedJP_A_TTF_Th.ttf
+        - asset: assets/fonts/LINESeedJP_A_TTF_Rg.ttf
