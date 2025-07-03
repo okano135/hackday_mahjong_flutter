@@ -1,44 +1,44 @@
-# 마작 API 사용 가이드
+# 麻雀 API 使用ガイド
 
-이 문서는 test-api.com의 마작 API를 사용하는 방법을 설명합니다.
+この文書は test-api.com の麻雀 API の使用方法を説明します。
 
-## 파일 구조
+## ファイル構造
 
 ```
 lib/
 ├── data/
 │   ├── datasources/
-│   │   └── mahjong_api_client.dart       # API 클라이언트 (HTTP 통신)
+│   │   └── mahjong_api_client.dart       # APIクライアント (HTTP通信)
 │   ├── models/
-│   │   ├── mahjong_tile_model.dart       # 마작 패 모델
-│   │   ├── recommendation_response_model.dart  # 추천 패 응답 모델
-│   │   └── score_calculation_response_model.dart  # 점수 계산 응답 모델
+│   │   ├── mahjong_tile_model.dart       # 麻雀牌モデル
+│   │   ├── recommendation_response_model.dart  # 推奨牌応答モデル
+│   │   └── score_calculation_response_model.dart  # 点数計算応答モデル
 │   └── repositories/
-│       └── mahjong_api_repository.dart   # API 레포지토리
+│       └── mahjong_api_repository.dart   # APIリポジトリ
 ├── domain/
 │   └── services/
-│       └── mahjong_service.dart          # 비즈니스 로직 서비스
+│       └── mahjong_service.dart          # ビジネスロジックサービス
 ├── core/
-│   └── providers.dart                    # Riverpod 프로바이더들
+│   └── providers.dart                    # Riverpodプロバイダー
 └── utils/
-    └── mahjong_api_example.dart          # 사용 예시
+    └── mahjong_api_example.dart          # 使用例
 ```
 
-## 주요 기능
+## 主要機能
 
-### 1. 추천 패 API
+### 1. 推奨牌 API
 
-- 현재 패 정보를 전달하면 추천하는 패를 반환합니다.
-- 문자열 형식(`"112233456789m11s"`) 또는 리스트 형식 지원
+- 現在の牌情報を渡すと推奨する牌を返します。
+- 文字列形式(`"112233456789m11s"`)またはリスト形式対応
 
-### 2. 점수 계산 API
+### 2. 点数計算 API
 
-- 현재 패 정보를 전달하면 점수와 가능한 역을 계산해서 반환합니다.
-- 문자열 형식(`"112233456789m11s"`) 또는 리스트 형식 지원
+- 現在の牌情報を渡すと点数と可能な役を計算して返します。
+- 文字列形式(`"112233456789m11s"`)またはリスト形式対応
 
-## 사용 방법
+## 使用方法
 
-### 1. 프로바이더를 통한 사용 (권장)
+### 1. プロバイダーを通じた使用 (推奨)
 
 ```dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,28 +52,25 @@ class MahjongScreen extends ConsumerWidget {
     return ElevatedButton(
       onPressed: () async {
         try {
-          // 문자열 형식으로 추천 패 가져오기
+          // 文字列形式で推奨牌を取得
           final response = await mahjongService.getRecommendationFromString(
             tilesString: "112233456789m11s",
           );
 
-          // 결과 처리
-          for (final recommendedTile in response.recommendedTiles) {
-            print('추천 패: ${recommendedTile.tile.displayName}');
-            print('이유: ${recommendedTile.reason}');
-            print('점수: ${recommendedTile.score}');
-          }
+          // 結果処理
+          print('推奨牌: ${response.recommend}');
+          print('推奨牌表示名: ${response.recommendedTileDisplayName}');
         } catch (e) {
-          print('API 호출 실패: $e');
+          print('API呼び出し失敗: $e');
         }
       },
-      child: Text('추천 패 가져오기'),
+      child: Text('推奨牌取得'),
     );
   }
 }
 ```
 
-### 2. 직접 서비스 사용
+### 2. 直接サービス使用
 
 ```dart
 import 'package:http/http.dart' as http;
@@ -82,104 +79,102 @@ import 'data/repositories/mahjong_api_repository.dart';
 import 'domain/services/mahjong_service.dart';
 
 void main() async {
-  // 서비스 초기화
+  // サービス初期化
   final httpClient = http.Client();
   final apiClient = MahjongApiClient(httpClient: httpClient);
   final repository = MahjongApiRepository(apiClient: apiClient);
   final service = MahjongService(repository: repository);
 
   try {
-    // 추천 패 가져오기
+    // 推奨牌取得
     final recommendation = await service.getRecommendationFromString(
       tilesString: "112233456789m11s",
     );
 
-    // 점수 계산하기
+    // 点数計算
     final scoreResult = await service.calculateScoreFromString(
       tilesString: "112233456789m11s",
     );
 
-    print('추천 패 개수: ${recommendation.recommendedTiles.length}');
-    print('현재 점수: ${scoreResult.currentScore.finalScore}');
+    print('推奨牌: ${recommendation.recommend}');
+    print('現在点数: ${scoreResult.result.ten}');
 
   } catch (e) {
-    print('오류: $e');
+    print('エラー: $e');
   } finally {
-    // 리소스 정리
+    // リソース清理
     service.dispose();
   }
 }
 ```
 
-## 패 문자열 형식
+## 牌文字列形式
 
-마작 패는 다음과 같은 문자열 형식으로 표현됩니다:
+麻雀牌は以下のような文字列形式で表現されます：
 
-- `m`: 만수패 (1m, 2m, ..., 9m)
-- `p`: 통수패 (1p, 2p, ..., 9p)
-- `s`: 삭수패 (1s, 2s, ..., 9s)
-- `z`: 자패 (1z~7z: 동남서북백발중)
+- `m`: 萬子牌 (1m, 2m, ..., 9m)
+- `p`: 筒子牌 (1p, 2p, ..., 9p)
+- `s`: 索子牌 (1s, 2s, ..., 9s)
+- `z`: 字牌 (1z~7z: 東南西北白發中)
 
-### 예시
+### 例
 
-- `"112233456789m"`: 만수패 1,1,2,2,3,3,4,5,6,7,8,9
-- `"112233456789m11s"`: 만수패 + 삭수패 1,1
-- `"123m456p789s1122z"`: 만수 123 + 통수 456 + 삭수 789 + 동동 + 남남
+- `"112233456789m"`: 萬子牌 1,1,2,2,3,3,4,5,6,7,8,9
+- `"112233456789m11s"`: 萬子牌 + 索子牌 1,1
+- `"123m456p789s1122z"`: 萬子 123 + 筒子 456 + 索子 789 + 東東 + 南南
 
-## API 응답 형식
+## API 応答形式
 
-### 추천 패 응답
+### 推奨牌応答
 
 ```json
 {
-  "success": true,
-  "message": "성공",
-  "recommendedTiles": [
-    {
-      "tile": {
-        "id": "man4",
-        "displayName": "四萬",
-        "isDora": false,
-        "isCandidate": true
-      },
-      "priority": 1,
-      "reason": "텐파이 달성",
-      "score": 0.85
-    }
-  ]
+  "recommend": "2s"
 }
 ```
 
-### 점수 계산 응답
+### 点数計算応答
 
 ```json
 {
   "success": true,
-  "message": "성공",
-  "currentScore": {
-    "baseScore": 1000,
-    "han": 1,
+  "result": {
+    "isAgari": true,
+    "yakuman": 0,
+    "yaku": { "一気通貫": "2飜", "一盃口": "1飜", "門前清自摸和": "1飜" },
+    "han": 4,
     "fu": 30,
-    "finalScore": 1000,
-    "yakuName": "리치"
+    "ten": 7900,
+    "name": "",
+    "text": "(東場南家)自摸 30符4飜 7900点(3900,2000)",
+    "oya": [3900, 3900, 3900],
+    "ko": [3900, 2000, 2000],
+    "error": false
   },
-  "possibleYaku": [
-    {
-      "name": "핑후",
-      "han": 1,
-      "description": "순자만으로 구성된 역",
-      "probability": 0.7
+  "error": null,
+  "input": {
+    "originalHand": "112233456789m11s",
+    "processedHand": "112233456789m11s",
+    "options": {
+      "dora": [],
+      "extra": null,
+      "wind": null,
+      "disableWyakuman": false,
+      "disableKuitan": false,
+      "disableAka": false,
+      "enableLocalYaku": [],
+      "disableYaku": []
     }
-  ]
+  }
 }
 ```
 
-## 에러 처리
+## エラー処理
 
-API 호출 시 다음과 같은 에러가 발생할 수 있습니다:
+API 呼び出し時に以下のようなエラーが発生する可能性があります：
 
-- `ArgumentError`: 잘못된 입력 (빈 문자열, 잘못된 형식 등)
-- `MahjongApiException`: API 호출 실패 (네트워크 오류, 서버 오류 등)
+- `ArgumentError`: 不正な入力 (空文字列、不正な形式など)
+- `MahjongApiException`: API 呼び出し失敗 (ネットワークエラー、サーバーエラーなど)
 
 ```dart
 try {
@@ -187,17 +182,17 @@ try {
     tilesString: tilesString,
   );
 } on ArgumentError catch (e) {
-  print('입력 오류: $e');
+  print('入力エラー: $e');
 } on MahjongApiException catch (e) {
-  print('API 오류: ${e.message} (상태코드: ${e.statusCode})');
+  print('APIエラー: ${e.message} (ステータスコード: ${e.statusCode})');
 } catch (e) {
-  print('알 수 없는 오류: $e');
+  print('不明なエラー: $e');
 }
 ```
 
-## 의존성
+## 依存関係
 
-프로젝트에 다음 패키지들이 필요합니다:
+プロジェクトに以下のパッケージが必要です：
 
 ```yaml
 dependencies:
@@ -205,4 +200,4 @@ dependencies:
   http: ^1.2.1
 ```
 
-이 패키지들은 이미 `pubspec.yaml`에 추가되어 있습니다.
+これらのパッケージは既に`pubspec.yaml`に追加されています。
