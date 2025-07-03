@@ -35,7 +35,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// StatelessWidget から ConsumerWidget に変更
 class AdvancedCameraScreen extends ConsumerWidget {
   @override
   // build メソッドに WidgetRef ref を追加
