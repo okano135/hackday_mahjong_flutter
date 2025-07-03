@@ -10,6 +10,7 @@ import 'package:ultralytics_yolo/yolo_task.dart';
 import 'package:ultralytics_yolo/yolo_view.dart';
 
 import 'widgets/dora_image_effect.dart'; // ドラのきらめきエフェクトを表示するWidget
+import 'widgets/dora_selection.dart';
 
 
 class AdvancedCameraScreen extends ConsumerStatefulWidget {
@@ -67,91 +68,13 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
                 ),
               ..._buildDetectionOverlays(),
               Positioned(
-  top: 16, // ステータスバーとの余白
-  left: 16, // 画面の左端からの余白
-  child: GestureDetector(
-    onTap: () => showDoraDialog(context),
-    child: ClipRRect(
-      // 全ての要素（背景、シャドウ）に角丸を適用するため、親ウィジェットでクリップします
-      borderRadius: BorderRadius.circular(20.0),
-      child: Container(
-        // ボタン全体の装飾（主に外側のドロップシャドウ）
-        decoration: BoxDecoration(
-          boxShadow: [
-            // ドロップシャドウ1つ目
-            BoxShadow(
-              color: const Color(0xFF000000).withOpacity(0.15),
-              offset: const Offset(-11.15, -10.39),
-              blurRadius: 48.0,
-              spreadRadius: -12.0,
-            ),
-            // ドロップシャドウ2つ目
-            BoxShadow(
-              color: const Color(0xFF000000).withOpacity(0.15),
-              offset: const Offset(-1.86, -1.73),
-              blurRadius: 12.0,
-              spreadRadius: -8.0,
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // 背景（すりガラス効果）
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                color: Colors.transparent, // BackdropFilterを有効にするために必要
-              ),
-            ),
-            
-            // 各レイヤーを重ねて複雑な見た目を実現します
-            // レイヤー1: 背景の塗り
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFFFFF).withOpacity(0.10),
-              ),
-            ),
-
-            // レイヤー2: インナーシャドウ
-            // FlutterのBoxDecorationはインナーシャドウを直接サポートしていないため、
-            // グラデーションを使って擬似的に表現します。
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    const Color(0xFFFFFFFF).withOpacity(0.15), // インナーシャドウ1
-                    const Color(0xFFFFFFFF).withOpacity(0.15), // インナーシャドウ2
-                    Colors.transparent,
-                  ],
-                  // stopsでグラデーションの範囲を調整し、シャドウのサイズやぼかしを表現
-                  stops: const [0.0, 0.1, 0.6],
+                top: 16, // ステータスバーとの余白
+                left: 16, // 画面の左端からの余白
+                child: DoraSelection(
+                  label: 'ドラ入力',
+                  onTap: () => showDoraDialog(context),
                 ),
               ),
-            ),
-
-            // レイヤー3: ボタンのラベル
-            // paddingでテキストの周りに余白を作ります
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              child: Center(
-                child: Text(
-                  'ドラ入力',
-                  style: TextStyle(
-                    color: Colors.white, // 見やすいように文字色を白に設定
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  ),
-)
             ],
           );
         },
