@@ -5,8 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:http/http.dart' as http;
 
 import 'core/providers.dart';
-import 'core/theme.dart';
-import 'presentation/camera/advanced_camera_screen.dart'; // 変更: インポートパスを修正
+import 'presentation/home/home_screen.dart';
 // import 'utils/mahjong_api_example.dart';
 // import 'data/datasources/mahjong_api_client.dart';
 // import 'data/repositories/mahjong_api_repository.dart';
@@ -14,6 +13,8 @@ import 'presentation/camera/advanced_camera_screen.dart'; // 変更: インポ�
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // アプリ起動時にSharedPreferencesのインスタンスを初期化し、Providerに渡す
   final prefs = await SharedPreferences.getInstance();
 
   // // API テスト実行
@@ -56,9 +57,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '麻雀リアルタイム支援',
-      theme: AppTheme.lightTheme,
+      theme: ThemeData(fontFamily: "LINESeed"),
       debugShowCheckedModeBanner: false,
-      home: AdvancedCameraScreen(),
+      home: HomeScreen(),
     );
   }
 }

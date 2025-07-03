@@ -37,33 +37,33 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
           return Stack(
             children: [
               YOLOView(
-                modelPath: 'best_re',
-                task: YOLOTask.detect,
-                // Configure streaming behavior
-                streamingConfig: YOLOStreamingConfig.throttled(
-                  maxFPS: 15, // Limit to 15 FPS for battery saving
-                  includeMasks: false, // Disable masks for performance
-                  includeOriginalImage: false, // Save bandwidth
+                  modelPath: 'best_re',
+                  task: YOLOTask.detect,
+                  // Configure streaming behavior
+                  streamingConfig: YOLOStreamingConfig.throttled(
+                    maxFPS: 15, // Limit to 15 FPS for battery saving
+                    includeMasks: false, // Disable masks for performance
+                    includeOriginalImage: false, // Save bandwidth
+                  ),
+
+                  // Comprehensive callback
+                  onStreamingData: (data) {
+                    final detections = data['detections'] as List? ?? [];
+                    final fps = data['fps'] as double? ?? 0.0;
+                    final originalImage = data['originalImage'] as Uint8List?;
+
+                    // Notifier を通じて手牌の状態を更新
+                    ref.watch(handProvider.notifier).updateHand(detections);
+
+                    // Update detections for overlay
+                    setState(() {
+                      _currentDetections = detections;
+                    });
+
+                    // Process complete frame data
+                    processFrameData(detections, originalImage);
+                  },
                 ),
-
-                // Comprehensive callback
-                onStreamingData: (data) {
-                  final detections = data['detections'] as List? ?? [];
-                  final fps = data['fps'] as double? ?? 0.0;
-                  final originalImage = data['originalImage'] as Uint8List?;
-
-                  // Notifier を通じて手牌の状態を更新
-                  ref.watch(handProvider.notifier).updateHand(detections);
-
-                  // Update detections for overlay
-                  setState(() {
-                    _currentDetections = detections;
-                  });
-
-                  // Process complete frame data
-                  processFrameData(detections, originalImage);
-                },
-              ),
               ..._buildDetectionOverlays(),
             ],
           );
