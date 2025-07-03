@@ -2,13 +2,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 
 import 'core/providers.dart';
 import 'core/theme.dart';
+import 'presentation/camera/camera_screen.dart';
+import 'presentation/home/home_screen.dart';
 import 'presentation/camera/advanced_camera_screen.dart'; // 変更: インポートパスを修正
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // アプリ起動時にSharedPreferencesのインスタンスを初期化し、Providerに渡す
   final prefs = await SharedPreferences.getInstance();
   runApp(
     ProviderScope(
@@ -27,7 +32,7 @@ class MyApp extends StatelessWidget {
       title: '麻雀リアルタイム支援',
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
-      home: AdvancedCameraScreen(),
+      home: HomeScreen(),
     );
   }
 }

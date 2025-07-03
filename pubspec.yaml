@@ -26,7 +26,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  
+
   assets:
     - assets/pis/
     - assets/
+
