@@ -1,5 +1,7 @@
 // lib/data/datasources/mahjong_api_client.dart
 import 'dart:convert';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/recommendation_response_model.dart';
@@ -8,7 +10,7 @@ import '../models/tenpai_response_model.dart';
 
 /// 麻雀APIクライアント
 class MahjongApiClient {
-  static const String _baseUrl = 'https://test-api.com';
+  static const String _baseUrl = 'http://54.64.215.47:80';
 
   final http.Client _httpClient;
 
@@ -135,3 +137,14 @@ class MahjongApiException implements Exception {
   @override
   String toString() => 'MahjongApiException: $message';
 }
+
+/// MahjongApiClientを提供するためのProvider
+final mahjongApiClientProvider = Provider<MahjongApiClient>((ref) {
+  final client = MahjongApiClient();
+
+  // Providerが破棄されるタイミングで、ApiClientのdisposeメソッドを呼び出し、
+  // HTTPクライアントのリソースを適切に解放します。
+  ref.onDispose(() => client.dispose());
+
+  return client;
+});

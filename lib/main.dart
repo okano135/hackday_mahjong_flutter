@@ -1,8 +1,10 @@
 // lib/main.dart
+// import 'package:http/http.dart' as http;
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:http/http.dart' as http;
 
 import 'core/providers.dart';
 import 'presentation/home/home_screen.dart';
@@ -12,6 +14,7 @@ import 'presentation/home/home_screen.dart';
 // import 'domain/services/mahjong_service.dart';
 
 Future<void> main() async {
+  HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
 
   // アプリ起動時にSharedPreferencesのインスタンスを初期化し、Providerに渡す
@@ -49,6 +52,16 @@ Future<void> main() async {
 //     print('❌ 麻雀API テストエラー: $e');
 //   }
 // }
+
+// main関数の前にこのクラスを定義
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

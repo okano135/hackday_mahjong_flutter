@@ -1,17 +1,17 @@
 // lib/main.dart
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mahjong_app/hand_state.dart';
+import 'package:mahjong_app/presentation/camera/widgets/score_calculator_dialog.dart';
 import 'package:ultralytics_yolo/yolo_streaming_config.dart';
 import 'package:ultralytics_yolo/yolo_task.dart';
 import 'package:ultralytics_yolo/yolo_view.dart';
 
+import 'widgets/agari_hand_editor.dart';
 import 'widgets/dora_image_effect.dart'; // ドラのきらめきエフェクトを表示するWidget
 import 'widgets/dora_selection.dart';
-
 
 class AdvancedCameraScreen extends ConsumerStatefulWidget {
   const AdvancedCameraScreen({super.key}); // keyを追加するのが一般的です
@@ -39,34 +39,49 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
           return Stack(
             children: [
               YOLOView(
-                  modelPath: 'best_re',
-                  task: YOLOTask.detect,
-                  // Configure streaming behavior
-                  streamingConfig: YOLOStreamingConfig.throttled(
-                    maxFPS: 15, // Limit to 15 FPS for battery saving
-                    includeMasks: false, // Disable masks for performance
-                    includeOriginalImage: false, // Save bandwidth
-                  ),
-
-                  // Comprehensive callback
-                  onStreamingData: (data) {
-                    final detections = data['detections'] as List? ?? [];
-                    final fps = data['fps'] as double? ?? 0.0;
-                    final originalImage = data['originalImage'] as Uint8List?;
-
-                    // Notifier を通じて手牌の状態を更新
-                    ref.watch(handProvider.notifier).updateHand(detections);
-
-                    // Update detections for overlay
-                    setState(() {
-                      _currentDetections = detections;
-                    });
-
-                    // Process complete frame data
-                    processFrameData(detections, originalImage);
-                  },
+                modelPath: 'best_re',
+                task: YOLOTask.detect,
+                // Configure streaming behavior
+                streamingConfig: YOLOStreamingConfig.throttled(
+                  maxFPS: 15, // Limit to 15 FPS for battery saving
+                  includeMasks: false, // Disable masks for performance
+                  includeOriginalImage: false, // Save bandwidth
                 ),
+
+                // Comprehensive callback
+                onStreamingData: (data) {
+                  final detections = data['detections'] as List? ?? [];
+                  final fps = data['fps'] as double? ?? 0.0;
+                  final originalImage = data['originalImage'] as Uint8List?;
+
+                  // Notifier を通じて手牌の状態を更新
+                  ref.watch(handProvider.notifier).updateHand(detections);
+
+                  // Update detections for overlay
+                  setState(() {
+                    _currentDetections = detections;
+                  });
+
+                  // Process complete frame data
+                  processFrameData(detections, originalImage);
+                },
+              ),
               ..._buildDetectionOverlays(),
+              Positioned(
+                left: 24,
+                bottom: 24,
+                child: GestureDetector(
+                  onTap: () {
+                    // showAgariHandDialog(context, ref);
+                    editHandAndCalculate(context, ref);
+                  },
+                  child: Image.asset(
+                    'assets/button_agari.png',
+                    width: 144, // お好みで調整
+                    height: 144,
+                  ),
+                ),
+              ),
               Positioned(
                 top: 16, // ステータスバーとの余白
                 left: 16, // 画面の左端からの余白
@@ -107,7 +122,9 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
             top: top * _viewSize.height,
             width: (right - left) * _viewSize.width,
             height: (bottom - top) * _viewSize.height,
-            child: DoraEffect(width: (right - left) * _viewSize.width), // 後で実装するきらめきエフェクトのWidget
+            child: DoraEffect(
+              width: (right - left) * _viewSize.width,
+            ), // 後で実装するきらめきエフェクトのWidget
           ),
         );
       }
@@ -137,30 +154,73 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
   }
 }
 
+// 仮のshowAgariHandDialogの定義。実際のものに置き換えてください。
+// Future<List<String>?> showAgariHandDialog(
+//   BuildContext context,
+//   WidgetRef ref,
+// ) async {
+//   // この中で手牌編集ダイアログを表示し、
+//   // 完了したら手牌のリストを返す（キャンセルならnull）
+//   // 以下はダミーの実装
+//   await Future.delayed(const Duration(seconds: 1)); // 編集時間をシミュレート
+//   return [
+//     'Manzu1',
+//     'Manzu2',
+//     'Manzu3',
+//     'Manzu4',
+//     'Manzu5',
+//     'Manzu6',
+//     'Manzu7',
+//     'Manzu8',
+//     'Manzu9',
+//     'Manzu1',
+//     'Manzu2',
+//     'Manzu3',
+//     'Manzu4',
+//     'Manzu5',
+//   ];
+// }
+
+/// 手牌編集と点数計算を実行する関数
+void editHandAndCalculate(BuildContext context, WidgetRef ref) async {
+  // 1. 手牌編集ダイアログを表示
+  final updatedHand = await showAgariHandDialog(context, ref);
+
+  // 2. 手牌が設定された場合のみ、点数計算ダイアログを表示
+  if (updatedHand != null && context.mounted) {
+    // context.mountedでウィジェットが有効かチェック
+    showDialog(
+      context: context,
+      builder: (context) {
+        return ScoreCalculatorDialog(hand: updatedHand);
+      },
+    );
+  }
+}
+
 class _DialogButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  const _DialogButton({required this.icon, required this.label, required this.onTap});
+  const _DialogButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       icon: Icon(icon),
       label: Text(label),
-      style: ElevatedButton.styleFrom(
-        minimumSize: const Size(120, 48),
-      ),
+      style: ElevatedButton.styleFrom(minimumSize: const Size(120, 48)),
       onPressed: onTap,
     );
   }
 }
 
 void showDoraDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (context) => DoraDialog(),
-  );
+  showDialog(context: context, builder: (context) => DoraDialog());
 }
 
 class DoraDialog extends StatefulWidget {
@@ -170,18 +230,48 @@ class DoraDialog extends StatefulWidget {
 
 class _DoraDialogState extends State<DoraDialog> {
   final tiles = [
-  // マンズ (萬子)
-  'Manzu1', 'Manzu2', 'Manzu3', 'Manzu4', 'Manzu5', 'Manzu6', 'Manzu7', 'Manzu8', 'Manzu9',
-  
-  // ピンズ (筒子)
-  'Pinzu1', 'Pinzu2', 'Pinzu3', 'Pinzu4', 'Pinzu5', 'Pinzu6', 'Pinzu7', 'Pinzu8', 'Pinzu9',
-  
-  // ソウズ (索子)
-  'Sowzu1', 'Sowzu2', 'Sowzu3', 'Sowzu4', 'Sowzu5', 'Sowzu6', 'Sowzu7', 'Sowzu8', 'Sowzu9',
-  
-  // 字牌 (風牌・三元牌)
-  'Etc_East', 'Etc_South', 'Etc_West', 'Etc_North', 'Etc_White', 'Etc_Hatsu', 'Etc_Center',
-];
+    // マンズ (萬子)
+    'Manzu1',
+    'Manzu2',
+    'Manzu3',
+    'Manzu4',
+    'Manzu5',
+    'Manzu6',
+    'Manzu7',
+    'Manzu8',
+    'Manzu9',
+
+    // ピンズ (筒子)
+    'Pinzu1',
+    'Pinzu2',
+    'Pinzu3',
+    'Pinzu4',
+    'Pinzu5',
+    'Pinzu6',
+    'Pinzu7',
+    'Pinzu8',
+    'Pinzu9',
+
+    // ソウズ (索子)
+    'Sowzu1',
+    'Sowzu2',
+    'Sowzu3',
+    'Sowzu4',
+    'Sowzu5',
+    'Sowzu6',
+    'Sowzu7',
+    'Sowzu8',
+    'Sowzu9',
+
+    // 字牌 (風牌・三元牌)
+    'Etc_East',
+    'Etc_South',
+    'Etc_West',
+    'Etc_North',
+    'Etc_White',
+    'Etc_Hatsu',
+    'Etc_Center',
+  ];
 
   final selected = <String>{};
 
@@ -246,7 +336,10 @@ class _DoraDialogState extends State<DoraDialog> {
                 },
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  child: Text('🌸 完了 🌸', style: TextStyle(fontSize: 18)),
+                  child: Text(
+                    '🌸 完了 🌸',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
                 ),
               ),
             ),
