@@ -5,7 +5,7 @@ import 'package:ultralytics_yolo/yolo_task.dart';
 import 'package:ultralytics_yolo/yolo_view.dart';
 import 'dart:typed_data';
 
-import '../../widgets/dora_effetct.dart'; // ドラのきらめきエフェクトを表示するWidget
+import 'widgets/dora_effetct.dart'; // ドラのきらめきエフェクトを表示するWidget
 
 
 class AdvancedCameraScreen extends StatefulWidget {
