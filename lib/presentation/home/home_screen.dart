@@ -27,7 +27,7 @@ class HomeScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const CameraScreen(),
+                      builder: (context) => const AdvancedCameraScreen(),
                     ),
                   );
                 },
@@ -38,7 +38,7 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   _DialogButton(
                     icon: Icons.local_florist,
-                    label: 'どら入力',
+                    label: 'ドラ入力',
                     onTap: () => showDoraDialog(context),
                   ),
                   const SizedBox(width: 24),
