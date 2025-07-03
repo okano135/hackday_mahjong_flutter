@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
       title: '麻雀リアルタイム支援',
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
-      home: AdvancedCameraScreen(),
+      home: HomeScreen(),
     );
   }
 }
