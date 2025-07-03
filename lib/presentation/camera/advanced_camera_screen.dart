@@ -1,5 +1,6 @@
 // lib/main.dart
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -65,6 +66,92 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
                   },
                 ),
               ..._buildDetectionOverlays(),
+              Positioned(
+  top: 16, // ステータスバーとの余白
+  left: 16, // 画面の左端からの余白
+  child: GestureDetector(
+    onTap: () => showDoraDialog(context),
+    child: ClipRRect(
+      // 全ての要素（背景、シャドウ）に角丸を適用するため、親ウィジェットでクリップします
+      borderRadius: BorderRadius.circular(20.0),
+      child: Container(
+        // ボタン全体の装飾（主に外側のドロップシャドウ）
+        decoration: BoxDecoration(
+          boxShadow: [
+            // ドロップシャドウ1つ目
+            BoxShadow(
+              color: const Color(0xFF000000).withOpacity(0.15),
+              offset: const Offset(-11.15, -10.39),
+              blurRadius: 48.0,
+              spreadRadius: -12.0,
+            ),
+            // ドロップシャドウ2つ目
+            BoxShadow(
+              color: const Color(0xFF000000).withOpacity(0.15),
+              offset: const Offset(-1.86, -1.73),
+              blurRadius: 12.0,
+              spreadRadius: -8.0,
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            // 背景（すりガラス効果）
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                color: Colors.transparent, // BackdropFilterを有効にするために必要
+              ),
+            ),
+            
+            // 各レイヤーを重ねて複雑な見た目を実現します
+            // レイヤー1: 背景の塗り
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFFFFF).withOpacity(0.10),
+              ),
+            ),
+
+            // レイヤー2: インナーシャドウ
+            // FlutterのBoxDecorationはインナーシャドウを直接サポートしていないため、
+            // グラデーションを使って擬似的に表現します。
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    const Color(0xFFFFFFFF).withOpacity(0.15), // インナーシャドウ1
+                    const Color(0xFFFFFFFF).withOpacity(0.15), // インナーシャドウ2
+                    Colors.transparent,
+                  ],
+                  // stopsでグラデーションの範囲を調整し、シャドウのサイズやぼかしを表現
+                  stops: const [0.0, 0.1, 0.6],
+                ),
+              ),
+            ),
+
+            // レイヤー3: ボタンのラベル
+            // paddingでテキストの周りに余白を作ります
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Center(
+                child: Text(
+                  'ドラ入力',
+                  style: TextStyle(
+                    color: Colors.white, // 見やすいように文字色を白に設定
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  ),
+)
             ],
           );
         },
@@ -124,5 +211,125 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
         }
       }
     }
+  }
+}
+
+class _DialogButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _DialogButton({required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      icon: Icon(icon),
+      label: Text(label),
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(120, 48),
+      ),
+      onPressed: onTap,
+    );
+  }
+}
+
+void showDoraDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => DoraDialog(),
+  );
+}
+
+class DoraDialog extends StatefulWidget {
+  @override
+  State<DoraDialog> createState() => _DoraDialogState();
+}
+
+class _DoraDialogState extends State<DoraDialog> {
+  final tiles = [
+  // マンズ (萬子)
+  'Manzu1', 'Manzu2', 'Manzu3', 'Manzu4', 'Manzu5', 'Manzu6', 'Manzu7', 'Manzu8', 'Manzu9',
+  
+  // ピンズ (筒子)
+  'Pinzu1', 'Pinzu2', 'Pinzu3', 'Pinzu4', 'Pinzu5', 'Pinzu6', 'Pinzu7', 'Pinzu8', 'Pinzu9',
+  
+  // ソウズ (索子)
+  'Sowzu1', 'Sowzu2', 'Sowzu3', 'Sowzu4', 'Sowzu5', 'Sowzu6', 'Sowzu7', 'Sowzu8', 'Sowzu9',
+  
+  // 字牌 (風牌・三元牌)
+  'Etc_East', 'Etc_South', 'Etc_West', 'Etc_North', 'Etc_White', 'Etc_Hatsu', 'Etc_Center',
+];
+
+  final selected = <String>{};
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: Colors.white.withOpacity(0.95),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: tiles.map((tile) {
+                final isSelected = selected.contains(tile);
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (isSelected) {
+                        selected.remove(tile);
+                      } else if (selected.length < 5) {
+                        selected.add(tile);
+                      }
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.black12),
+                      color: isSelected ? Colors.yellowAccent : Colors.white,
+                      boxShadow: [
+                        if (isSelected)
+                          BoxShadow(color: Colors.yellow, blurRadius: 4),
+                      ],
+                    ),
+                    width: 40,
+                    height: 60,
+                    child: Image.asset(
+                      'assets/pis/$tile.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pinkAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+                onPressed: () {
+                  // TODO: 選択結果を保存する処理
+                  Navigator.of(context).pop(selected.toList());
+                },
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  child: Text('🌸 完了 🌸', style: TextStyle(fontSize: 18)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
