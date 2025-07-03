@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mahjong_app/presentation/camera/widgets/imageBackgroundButton.dart';
+
 import '../camera/advanced_camera_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -12,18 +14,43 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                '麻雀リアルタイム支援',
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              // helpyonとJonghelpyonテキストを横に並べるための Column
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset('assets/helpyon.png', height: 200),
+                  const SizedBox(width: 16), // 画像とテキストの間にスペースを追加
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Jong',
+                        style: TextStyle(
+                          fontSize: 70,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8), // テキストの間にスペースを追加
+                      const Text(
+                        'Helpyon',
+                        style: TextStyle(
+                          fontSize: 70,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  // const Text(
+                  //   'Jong\nHelpyon',
+                  //   style: TextStyle(fontSize: 80, fontWeight: FontWeight.bold),
+                  // ),
+                ],
               ),
-              const SizedBox(height: 32),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.camera_alt),
-                label: const Text('ヘルパー画面へ'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(200, 56),
-                  textStyle: const TextStyle(fontSize: 20),
-                ),
+
+              // assets/button_calc_inactive.pngを背景にしたボタン
+              ImageBackgroundButton(
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -31,24 +58,43 @@ class HomeScreen extends StatelessWidget {
                     ),
                   );
                 },
+                text: "",
+                // TODO: 後で直す
+                imagePath: "assets/button_calc.png",
               ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _DialogButton(
-                    icon: Icons.local_florist,
-                    label: 'ドラ入力',
-                    onTap: () => showDoraDialog(context),
-                  ),
-                  const SizedBox(width: 24),
-                  _DialogButton(
-                    icon: Icons.info_outline,
-                    label: '状況入力',
-                    onTap: () => showSituationDialog(context),
-                  ),
-                ],
-              ),
+              // const SizedBox(height: 32),
+              // ElevatedButton.icon(
+              //   icon: const Icon(Icons.camera_alt),
+              //   label: const Text('ヘルパー画面へ'),
+              //   style: ElevatedButton.styleFrom(
+              //     minimumSize: const Size(200, 56),
+              //     textStyle: const TextStyle(fontSize: 20),
+              //   ),
+              //   onPressed: () {
+              //     Navigator.of(context).push(
+              //       MaterialPageRoute(
+              //         builder: (context) => const AdvancedCameraScreen(),
+              //       ),
+              //     );
+              //   },
+              // ),
+              // const SizedBox(height: 24),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     _DialogButton(
+              //       icon: Icons.local_florist,
+              //       label: 'ドラ入力',
+              //       onTap: () => showDoraDialog(context),
+              //     ),
+              //     const SizedBox(width: 24),
+              //     _DialogButton(
+              //       icon: Icons.info_outline,
+              //       label: '状況入力',
+              //       onTap: () => showSituationDialog(context),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),
@@ -61,33 +107,29 @@ class _DialogButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  const _DialogButton({required this.icon, required this.label, required this.onTap});
+  const _DialogButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       icon: Icon(icon),
       label: Text(label),
-      style: ElevatedButton.styleFrom(
-        minimumSize: const Size(120, 48),
-      ),
+      style: ElevatedButton.styleFrom(minimumSize: const Size(120, 48)),
       onPressed: onTap,
     );
   }
 }
 
 void showDoraDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (context) => DoraDialog(),
-  );
+  showDialog(context: context, builder: (context) => DoraDialog());
 }
 
 void showSituationDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (context) => SituationDialog(),
-  );
+  showDialog(context: context, builder: (context) => SituationDialog());
 }
 
 class DoraDialog extends StatefulWidget {
@@ -97,11 +139,41 @@ class DoraDialog extends StatefulWidget {
 
 class _DoraDialogState extends State<DoraDialog> {
   final tiles = [
-    'Etc_Center', 'Etc_East', 'Etc_Hatsu', 'Etc_North', 'Etc_South', 'Etc_West', 'Etc_White', 
-    'Manzu1', 'Manzu2', 'Manzu3', 'Manzu4', 'Manzu5', 'Manzu6', 'Manzu7', 'Manzu8', 'Manzu9', 
-    'Pinzu1', 'Pinzu2', 'Pinzu3', 'Pinzu4', 'Pinzu5', 'Pinzu6', 'Pinzu7', 'Pinzu8', 'Pinzu9', 
-    'Sowzu1', 'Sowzu2', 'Sowzu3', 'Sowzu4', 'Sowzu5', 'Sowzu6', 'Sowzu7', 'Sowzu8', 'Sowzu9'
-];
+    'Etc_Center',
+    'Etc_East',
+    'Etc_Hatsu',
+    'Etc_North',
+    'Etc_South',
+    'Etc_West',
+    'Etc_White',
+    'Manzu1',
+    'Manzu2',
+    'Manzu3',
+    'Manzu4',
+    'Manzu5',
+    'Manzu6',
+    'Manzu7',
+    'Manzu8',
+    'Manzu9',
+    'Pinzu1',
+    'Pinzu2',
+    'Pinzu3',
+    'Pinzu4',
+    'Pinzu5',
+    'Pinzu6',
+    'Pinzu7',
+    'Pinzu8',
+    'Pinzu9',
+    'Sowzu1',
+    'Sowzu2',
+    'Sowzu3',
+    'Sowzu4',
+    'Sowzu5',
+    'Sowzu6',
+    'Sowzu7',
+    'Sowzu8',
+    'Sowzu9',
+  ];
 
   final selected = <String>{};
 
@@ -234,7 +306,9 @@ class _SituationDialogState extends State<SituationDialog> {
                         const Text('本場: '),
                         IconButton(
                           icon: const Icon(Icons.remove),
-                          onPressed: () => setState(() => honba = (honba > 0) ? honba - 1 : 0),
+                          onPressed: () => setState(
+                            () => honba = (honba > 0) ? honba - 1 : 0,
+                          ),
                         ),
                         Text('$honba'),
                         IconButton(
