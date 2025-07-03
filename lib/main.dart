@@ -5,25 +5,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ultralytics_yolo/yolo_streaming_config.dart';
 import 'package:ultralytics_yolo/yolo_task.dart';
 import 'package:ultralytics_yolo/yolo_view.dart';
-import 'dart:typed_data';
 
 import 'core/providers.dart';
 import 'core/theme.dart';
-import 'presentation/camera/camera_screen.dart';
+import 'hand_state.dart'; // 作成した hand_state.dart をインポート
 
 Future<void> main() async {
-  // main関数で非同期処理を呼び出すためのおまじない
   WidgetsFlutterBinding.ensureInitialized();
-
-  // アプリ起動時にSharedPreferencesのインスタンスを初期化し、Providerに渡す
   final prefs = await SharedPreferences.getInstance();
-
   runApp(
     ProviderScope(
-      overrides: [
-        // sharedPreferencesProviderの値を上書き
-        sharedPreferencesProvider.overrideWithValue(prefs),
-      ],
+      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
       child: const MyApp(),
     ),
   );
@@ -36,54 +28,37 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '麻雀リアルタイム支援',
-      theme: AppTheme.lightTheme, // アプリのテーマを適用
+      theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
-      home: AdvancedCameraScreen(), // 最初の画面としてカメラ画面を指定
+      home: AdvancedCameraScreen(),
     );
-
   }
 }
 
-
-class AdvancedCameraScreen extends StatelessWidget {
+// StatelessWidget から ConsumerWidget に変更
+class AdvancedCameraScreen extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  // build メソッドに WidgetRef ref を追加
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: YOLOView(
-        modelPath: 'best_re',
-        task: YOLOTask.detect,
-
-        // Configure streaming behavior
-        streamingConfig: YOLOStreamingConfig.throttled(
-          maxFPS: 15, // Limit to 15 FPS for battery saving
-          includeMasks: false, // Disable masks for performance
-          includeOriginalImage: false, // Save bandwidth
-        ),
-
-        // Comprehensive callback
-        onStreamingData: (data) {
-          final detections = data['detections'] as List? ?? [];
-          final fps = data['fps'] as double? ?? 0.0;
-          final originalImage = data['originalImage'] as Uint8List?;
-
-          print('Streaming: ${detections.length} detections at ${fps.toStringAsFixed(1)} FPS');
-
-          // Process complete frame data
-          processFrameData(detections, originalImage);
-        },
+      body: Stack(
+        children: [
+          YOLOView(
+            modelPath: 'best_re 3',
+            task: YOLOTask.detect,
+            streamingConfig: YOLOStreamingConfig.throttled(
+              maxFPS: 15,
+              includeMasks: false,
+              includeOriginalImage: false,
+            ),
+            onStreamingData: (data) {
+              final detections = data['detections'] as List? ?? [];
+              // Notifier を通じて手牌の状態を更新
+              ref.read(handProvider.notifier).updateHand(detections);
+            },
+          ),
+        ],
       ),
     );
-  }
-
-  void processFrameData(List detections, Uint8List? imageData) {
-    // Custom processing logic
-    for (final detection in detections) {
-      final className = detection['className'] as String?;
-      final confidence = detection['confidence'] as double?;
-
-      if (confidence != null && confidence > 0.8) {
-        print('High confidence detection: $className (${(confidence * 100).toStringAsFixed(1)}%)');
-      }
-    }
   }
 }
