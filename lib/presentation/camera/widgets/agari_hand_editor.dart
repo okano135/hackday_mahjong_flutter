@@ -1,4 +1,6 @@
-
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mahjong_app/hand_state.dart';
 
 void showAgariHandDialog(BuildContext context, WidgetRef ref) {
   final handState = ref.read(handProvider); // 推定手牌リストを取得
