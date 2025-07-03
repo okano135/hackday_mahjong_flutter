@@ -35,9 +35,7 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
 
           return Stack(
             children: [
-              RotatedBox(
-                quarterTurns: 1, // 90度回転。必要に応じて0, 2, 3に調整
-                child: YOLOView(
+              YOLOView(
                   modelPath: 'best_re 3',
                   task: YOLOTask.detect,
                   // Configure streaming behavior
@@ -65,7 +63,6 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
                     processFrameData(detections, originalImage);
                   },
                 ),
-              ),
               ..._buildDetectionOverlays(),
             ],
           );

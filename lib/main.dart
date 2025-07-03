@@ -12,10 +12,6 @@ import 'presentation/camera/advanced_camera_screen.dart'; // 変更: インポ�
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-  ]);
 
   // アプリ起動時にSharedPreferencesのインスタンスを初期化し、Providerに渡す
   final prefs = await SharedPreferences.getInstance();
