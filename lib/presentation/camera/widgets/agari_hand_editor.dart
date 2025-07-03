@@ -134,15 +134,12 @@ class _AgariHandEditorState extends State<AgariHandEditor> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(handTiles),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orangeAccent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  child: Text('完了', style: TextStyle(fontSize: 18)),
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(handTiles),
+                child: Image.asset(
+                  'assets/button_finish.png',
+                  width: 120, // お好みで調整
+                  height: 48,
                 ),
               ),
             ],
