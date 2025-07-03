@@ -26,19 +26,19 @@ class AgariHandEditor extends StatefulWidget {
 class _AgariHandEditorState extends State<AgariHandEditor> {
   late List<String> handTiles; // 下部：現在の手牌
   final Map<String, int> selectedCounts = {};
-  final tiles = [
-    // マンズ (萬子)
-    'Manzu1', 'Manzu2', 'Manzu3', 'Manzu4', 'Manzu5', 'Manzu6', 'Manzu7', 'Manzu8', 'Manzu9',
+  final allTiles = [
+  // マンズ (萬子)
+  'Manzu1', 'Manzu2', 'Manzu3', 'Manzu4', 'Manzu5', 'Manzu6', 'Manzu7', 'Manzu8', 'Manzu9',
 
-    // ピンズ (筒子)
-    'Pinzu1', 'Pinzu2', 'Pinzu3', 'Pinzu4', 'Pinzu5', 'Pinzu6', 'Pinzu7', 'Pinzu8', 'Pinzu9',
+  // ピンズ (筒子)
+  'Pinzu1', 'Pinzu2', 'Pinzu3', 'Pinzu4', 'Pinzu5', 'Pinzu6', 'Pinzu7', 'Pinzu8', 'Pinzu9',
 
-    // ソウズ (索子)
-    'Sowzu1', 'Sowzu2', 'Sowzu3', 'Sowzu4', 'Sowzu5', 'Sowzu6', 'Sowzu7', 'Sowzu8', 'Sowzu9',
+  // ソウズ (索子)
+  'Sowzu1', 'Sowzu2', 'Sowzu3', 'Sowzu4', 'Sowzu5', 'Sowzu6', 'Sowzu7', 'Sowzu8', 'Sowzu9',
 
-    // 字牌 (風牌・三元牌)
-    'Etc_East', 'Etc_South', 'Etc_West', 'Etc_North', 'Etc_White', 'Etc_Hatsu', 'Etc_Center',
-  ];
+  // 字牌 (風牌・三元牌)
+  'Etc_East', 'Etc_South', 'Etc_West', 'Etc_North', 'Etc_White', 'Etc_Hatsu', 'Etc_Center',
+];
 
   @override
   void initState() {
@@ -50,7 +50,7 @@ class _AgariHandEditorState extends State<AgariHandEditor> {
   }
 
   void addTile(String tile) {
-    if ((selectedCounts[tile] ?? 0) < 4) {
+    if ((selectedCounts[tile] ?? 0) < 4 && handTiles.length < 14) {
       setState(() {
         handTiles.add(tile);
         selectedCounts[tile] = (selectedCounts[tile] ?? 0) + 1;
@@ -87,7 +87,7 @@ class _AgariHandEditorState extends State<AgariHandEditor> {
                 final tile = allTiles[idx];
                 final count = selectedCounts[tile] ?? 0;
                 return GestureDetector(
-                  onTap: () => if(handTiles.length < 14) addTile(tile),
+                  onTap: () => addTile(tile),
                   child: Stack(
                     alignment: Alignment.topRight,
                     children: [
