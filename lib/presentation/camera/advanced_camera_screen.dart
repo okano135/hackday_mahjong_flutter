@@ -9,7 +9,7 @@ import 'package:ultralytics_yolo/yolo_task.dart';
 import 'package:ultralytics_yolo/yolo_view.dart';
 
 import 'widgets/dora_image_effect.dart'; // ドラのきらめきエフェクトを表示するWidget
-
+import 'widgets/agari_hand_editor.dart';
 
 class AdvancedCameraScreen extends ConsumerStatefulWidget {
   const AdvancedCameraScreen({super.key}); // keyを追加するのが一般的です
@@ -65,6 +65,20 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
                   },
                 ),
               ..._buildDetectionOverlays(),
+              Positioned(
+                right: 24,
+                bottom: 100,
+                child: GestureDetector(
+                  onTap: () {
+                    showAgariHandDialog(context, ref);
+                  },
+                  child: Image.asset(
+                    'assets/button_agari.png',
+                    width: 72, // お好みで調整
+                    height: 72,
+                  ),
+                ),
+              ),
             ],
           );
         },
