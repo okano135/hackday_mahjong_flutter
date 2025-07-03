@@ -26,6 +26,12 @@ class MahjongTileConverter {
       return '';
     }
 
+    // 最後の牌を除外して処理
+    final String? lastTile = classNames.isNotEmpty ? classNames.last : null;
+    final List<String> timesExceptLast = classNames.length > 1
+        ? classNames.sublist(0, classNames.length - 1)
+        : [];
+
     final Map<String, List<String>> suitGroups = {
       'm': [], // 萬子 (Manzu)
       'p': [], // 筒子 (Pinzu)
@@ -34,7 +40,7 @@ class MahjongTileConverter {
     };
 
     // className をパースして種類別にグループ化
-    for (final className in classNames) {
+    for (final className in timesExceptLast) {
       final parsedTile = _parseClassName(className);
       if (parsedTile != null) {
         suitGroups[parsedTile['suit']]?.add(parsedTile['number']!);
@@ -49,6 +55,15 @@ class MahjongTileConverter {
         entry.value.sort();
         result.write(entry.value.join(''));
         result.write(entry.key);
+      }
+    }
+
+    // 最後の牌を特別に処理
+    if (lastTile != null) {
+      final parsedLastTile = _parseClassName(lastTile);
+      if (parsedLastTile != null) {
+        result.write(parsedLastTile['number']);
+        result.write(parsedLastTile['suit']);
       }
     }
 
