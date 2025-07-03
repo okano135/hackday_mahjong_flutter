@@ -79,15 +79,14 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
                     width: 144, // お好みで調整
                     height: 144,
                   ),
-                  ),
                 ),
+              ),
               Positioned(
                 top: 16, // ステータスバーとの余白
                 left: 16, // 画面の左端からの余白
                 child: DoraSelection(
                   label: 'ドラ入力',
                   onTap: () => showDoraDialog(context),
-                  ),
                 ),
               ),
             ],
