@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import '../models/recommendation_response_model.dart';
 import '../models/score_calculation_response_model.dart';
+import '../models/tenpai_response_model.dart';
 
 /// 麻雀APIクライアント
 class MahjongApiClient {
@@ -78,6 +79,37 @@ class MahjongApiClient {
       } else {
         throw MahjongApiException(
           'Failed to calculate score: ${response.statusCode}',
+          response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is MahjongApiException) rethrow;
+      throw MahjongApiException('Network error: $e');
+    }
+  }
+
+  // 和了り牌API呼び出し(牌文字列で) - 例:"23456m456p345s33z"
+  Future<TenpaiResponseModel> checkTenpaiFromString({
+    required String tilesString,
+  }) async {
+    try {
+      final url = Uri.parse('$_baseUrl/tenpai');
+
+      final response = await _httpClient.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({'hand': tilesString}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return TenpaiResponseModel.fromJson(data);
+      } else {
+        throw MahjongApiException(
+          'Failed to check tenpai: ${response.statusCode}',
           response.statusCode,
         );
       }

@@ -2,6 +2,7 @@
 import '../datasources/mahjong_api_client.dart';
 import '../models/recommendation_response_model.dart';
 import '../models/score_calculation_response_model.dart';
+import '../models/tenpai_response_model.dart';
 
 /// 麻雀APIリポジトリ
 class MahjongApiRepository {
@@ -38,6 +39,18 @@ class MahjongApiRepository {
         dora: dora,
         wind: wind,
       );
+    } catch (e) {
+      // エラーログまたは変換ロジック追加可能
+      rethrow;
+    }
+  }
+
+  /// 和了り牌 チェック (牌文字列で) - 例: "23456m456p345s33z"
+  Future<TenpaiResponseModel> checkTenpaiFromString({
+    required String tilesString,
+  }) async {
+    try {
+      return await _apiClient.checkTenpaiFromString(tilesString: tilesString);
     } catch (e) {
       // エラーログまたは変換ロジック追加可能
       rethrow;

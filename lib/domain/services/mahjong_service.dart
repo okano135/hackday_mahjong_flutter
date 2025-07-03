@@ -1,6 +1,7 @@
 // lib/domain/services/mahjong_service.dart
 import '../../data/models/recommendation_response_model.dart';
 import '../../data/models/score_calculation_response_model.dart';
+import '../../data/models/tenpai_response_model.dart';
 import '../../data/repositories/mahjong_api_repository.dart';
 import '../../utils/mahjong_tile_converter.dart';
 
@@ -63,6 +64,28 @@ class MahjongService {
       dora: dora,
       wind: wind,
     );
+  }
+
+  /// 和了り牌 チェック (牌検出結果で) - 例: "23456m456p345s33z"
+  Future<TenpaiResponseModel> checkTenpaiFromDetectedTiles({
+    required List<dynamic> tiles,
+  }) async {
+    // ビジネスロジック追加可能 (例: バリデーション、キャッシュなど)
+
+    if (tiles.isEmpty) {
+      throw ArgumentError('牌文字列が空です。');
+    }
+    // 牌リストを文字列形式に変換
+    final tilesString = MahjongTileConverter.convertDetectedTilesToApiString(
+      tiles,
+    );
+
+    // 簡単なバリデーション (麻雀牌文字列形式)
+    if (!_isValidTilesString(tilesString)) {
+      throw ArgumentError('正しくない牌文字列形式です: $tilesString');
+    }
+
+    return await _repository.checkTenpaiFromString(tilesString: tilesString);
   }
 
   /// 牌文字列形式が有効かチェックするヘルパーメソッド
