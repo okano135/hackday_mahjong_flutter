@@ -257,7 +257,7 @@ class MahjongTestData {
     ];
   }
 
-  /// 点数計算テスト用データ生成 (結果: "23m456678p345s77z1m")
+  /// 点数計算テスト用データ生成 (結果: "23m456678p345s33z1m")
   static List<dynamic> createScoreTestData() {
     return [
       // Manzu2 x1
@@ -466,7 +466,7 @@ class MahjongTestData {
           "left": 0.6007080078125,
         },
         "classIndex": 33,
-        "className": "Chun",
+        "className": "Sha",
         "confidence": 0.9987589716911316,
         "boundingBox": {
           "bottom": 990.377197265625,
@@ -483,7 +483,7 @@ class MahjongTestData {
           "left": 0.6007080078125,
         },
         "classIndex": 33,
-        "className": "Chun",
+        "className": "Sha",
         "confidence": 0.9987589716911316,
         "boundingBox": {
           "bottom": 990.377197265625,
@@ -513,7 +513,7 @@ class MahjongTestData {
     ];
   }
 
-  /// 和了り牌 チェックテスト用データ生成 (結果: "23456m456p345s77z")
+  /// 和了り牌 チェックテスト用データ生成 (結果: "23456m456p345s33z")
   static List<dynamic> createAgarihaiTestData() {
     return [
       // Manzu2 x1
@@ -723,7 +723,7 @@ class MahjongTestData {
           "left": 0.6007080078125,
         },
         "classIndex": 33,
-        "className": "Chun",
+        "className": "Sha",
         "confidence": 0.9987589716911316,
         "boundingBox": {
           "bottom": 990.377197265625,
@@ -740,7 +740,7 @@ class MahjongTestData {
           "left": 0.6007080078125,
         },
         "classIndex": 33,
-        "className": "Chun",
+        "className": "Sha",
         "confidence": 0.9987589716911316,
         "boundingBox": {
           "bottom": 990.377197265625,

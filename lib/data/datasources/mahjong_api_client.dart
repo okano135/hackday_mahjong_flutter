@@ -20,7 +20,7 @@ class MahjongApiClient {
     required String tilesString,
   }) async {
     try {
-      final url = Uri.parse('$_baseUrl/recommendation');
+      final url = Uri.parse('$_baseUrl/api/v1/recommend');
 
       final response = await _httpClient.post(
         url,
@@ -54,7 +54,7 @@ class MahjongApiClient {
     String? wind,
   }) async {
     try {
-      final url = Uri.parse('$_baseUrl/score-calculation');
+      final url = Uri.parse('$_baseUrl/api/v1/score');
 
       // リクエストボディ構築
       final Map<String, dynamic> requestBody = {'hand': tilesString};
@@ -93,7 +93,7 @@ class MahjongApiClient {
     required String tilesString,
   }) async {
     try {
-      final url = Uri.parse('$_baseUrl/tenpai');
+      final url = Uri.parse('$_baseUrl/api/v1/agarihai');
 
       final response = await _httpClient.post(
         url,
