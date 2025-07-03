@@ -66,7 +66,7 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
                 ),
               ..._buildDetectionOverlays(),
               Positioned(
-                right: 24,
+                left: 24,
                 bottom: 100,
                 child: GestureDetector(
                   onTap: () {
@@ -74,8 +74,8 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
                   },
                   child: Image.asset(
                     'assets/button_agari.png',
-                    width: 72, // お好みで調整
-                    height: 72,
+                    width: 144, // お好みで調整
+                    height: 144,
                   ),
                 ),
               ),
