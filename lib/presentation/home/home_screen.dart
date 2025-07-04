@@ -60,7 +60,7 @@ class HomeScreen extends StatelessWidget {
                 },
                 text: "",
                 // TODO: 後で直す
-                imagePath: "assets/button_calc.png",
+                imagePath: "assets/button_start.png",
               ),
               // const SizedBox(height: 32),
               // ElevatedButton.icon(
