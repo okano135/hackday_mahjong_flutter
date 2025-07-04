@@ -113,6 +113,8 @@ class _ScoreCalculatorDialogState extends ConsumerState<ScoreCalculatorDialog> {
                     ),
                     const SizedBox(width: 100),
                     // 右側の選択肢部分
+                    Expanded( // <--- 💡 これを追加！
+                    child:
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -149,7 +151,7 @@ class _ScoreCalculatorDialogState extends ConsumerState<ScoreCalculatorDialog> {
                         // widget.hand を使ってアガリ牌セレクターを構築する
                         _buildWinningTileSelector(widget.hand),
                       ],
-                    ),
+                    ),),
                   ],
                 ),
                 const SizedBox(height: 32),

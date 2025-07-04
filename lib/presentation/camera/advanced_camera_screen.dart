@@ -32,6 +32,7 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
   // build メソッドの引数は BuildContext のみになります。
   // `ref` は ConsumerState のプロパティとして `this.ref` でアクセスできます。
   Widget build(BuildContext context) {
+    final doraTiles = ref.watch(doraProvider);
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -134,6 +135,7 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
                       ),
                     ),
               ),
+                )
             ],
           );
         },
