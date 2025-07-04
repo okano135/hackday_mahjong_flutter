@@ -16,7 +16,7 @@ class HandStateNotifier extends StateNotifier<List<String>> {
 
   /// 状態を更新するために必要な連続検出フレーム数
   /// この値を大きくするとより安定しますが、反応は少し遅くなります。
-  static const int _requiredStableFrames = 3;
+  static const int _requiredStableFrames = 0;
 
   /// 検出の信頼度のしきい値
   static const double _confidenceThreshold = 0.7;
