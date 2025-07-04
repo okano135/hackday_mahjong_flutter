@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mahjong_app/hand_state.dart';
+import 'package:mahjong_app/dora_state.dart';
 import 'package:mahjong_app/presentation/camera/widgets/score_calculator_dialog.dart';
 import 'package:ultralytics_yolo/yolo_streaming_config.dart';
 import 'package:ultralytics_yolo/yolo_task.dart';
@@ -110,7 +111,8 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
       final confidence = detection['confidence'] as double?;
       if (box == null || className == null || confidence == null) continue;
 
-      if (className == 'Manzu4') {
+      List<String> doraList = ref.watch(doraProvider);
+      if (doraList.contains(className)) {
         final left = (box['left'] as num).toDouble();
         final top = (box['top'] as num).toDouble();
         final right = (box['right'] as num).toDouble();
@@ -223,12 +225,12 @@ void showDoraDialog(BuildContext context) {
   showDialog(context: context, builder: (context) => DoraDialog());
 }
 
-class DoraDialog extends StatefulWidget {
+class DoraDialog extends ConsumerStatefulWidget {
   @override
-  State<DoraDialog> createState() => _DoraDialogState();
+  ConsumerState<DoraDialog> createState() => _DoraDialogState();
 }
 
-class _DoraDialogState extends State<DoraDialog> {
+class _DoraDialogState extends ConsumerState<DoraDialog> {
   final tiles = [
     // マンズ (萬子)
     'Manzu1',
@@ -331,8 +333,17 @@ class _DoraDialogState extends State<DoraDialog> {
                   ),
                 ),
                 onPressed: () {
-                  // TODO: 選択結果を保存する処理
+                  // ドラの状態をリセット
+                  ref.read(doraProvider.notifier).clearDora();
+
+                  // 選択されたドラを追加
+                  for (final dora in selected) {
+                    ref.read(doraProvider.notifier).addDora(dora);
+                  }
+
                   Navigator.of(context).pop(selected.toList());
+                  //refの状態を確認する
+                  print("Selected Dora: ${ref.read(doraProvider)}");
                 },
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
