@@ -91,6 +91,49 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
                   onTap: () => showDoraDialog(context),
                 ),
               ),
+              if (doraTiles.isNotEmpty)
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 16.0), // ステータスバーとの余白
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6), // 薄黒い背景
+                        borderRadius: BorderRadius.circular(20), // 角を丸くする
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min, // 中身のサイズに合わせる
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Image.asset(
+                              'assets/dora_animation.gif', // アニメーションGIFのパス
+                              height: 40,
+                            ),
+                          ),
+                          // 選択されたドラ牌の画像を表示
+                          ...doraTiles.map((tile) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                              child: Image.asset(
+                                'assets/pis/$tile.png',
+                                height: 40, // 画像の高さ
+                                width: 28,  // 画像の幅
+                              ),
+                            );
+                          }).toList(),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Image.asset(
+                              'assets/dora_animation.gif', // アニメーションGIFのパス
+                              height: 40,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+              ),
             ],
           );
         },
