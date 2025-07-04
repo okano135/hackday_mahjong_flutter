@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mahjong_app/hand_state.dart';
 import 'package:mahjong_app/dora_state.dart';
+import 'package:mahjong_app/hand_state.dart';
 import 'package:mahjong_app/presentation/camera/widgets/score_calculator_dialog.dart';
 import 'package:ultralytics_yolo/yolo_streaming_config.dart';
 import 'package:ultralytics_yolo/yolo_task.dart';
@@ -98,7 +98,10 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
                   child: Padding(
                     padding: const EdgeInsets.only(top: 16.0), // ステータスバーとの余白
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.6), // 薄黒い背景
                         borderRadius: BorderRadius.circular(20), // 角を丸くする
@@ -116,11 +119,13 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
                           // 選択されたドラ牌の画像を表示
                           ...doraTiles.map((tile) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 2.0,
+                              ),
                               child: Image.asset(
                                 'assets/pis/$tile.png',
                                 height: 40, // 画像の高さ
-                                width: 28,  // 画像の幅
+                                width: 28, // 画像の幅
                               ),
                             );
                           }).toList(),
@@ -134,8 +139,8 @@ class _AdvancedCameraScreenState extends ConsumerState<AdvancedCameraScreen> {
                         ],
                       ),
                     ),
-              ),
-                )
+                  ),
+                ),
             ],
           );
         },

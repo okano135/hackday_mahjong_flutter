@@ -48,13 +48,13 @@ class HandStateNotifier extends StateNotifier<List<String>> {
       //    これにより、不要なUIの再描画を防ぐ
       if (!listEquals(state, _candidateHand)) {
         state = _candidateHand;
+        print('Hand updated: $state');
       }
     }
   }
 }
 
 // StateNotifierProvider (変更なし)
-final handProvider =
-    StateNotifierProvider.autoDispose<HandStateNotifier, List<String>>(
-      (ref) => HandStateNotifier(),
-    );
+final handProvider = StateNotifierProvider<HandStateNotifier, List<String>>(
+  (ref) => HandStateNotifier(),
+);
